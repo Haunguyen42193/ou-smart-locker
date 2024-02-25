@@ -7,8 +7,10 @@ public class ConvertData {
     public static UserDto convertUserToUserDto(User user) {
         return UserDto.builder()
                 .id(user.getId())
+                .name(user.getName())
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .phone(user.getPhone())
                 .roles(user.getRoles())
                 .build();
     }

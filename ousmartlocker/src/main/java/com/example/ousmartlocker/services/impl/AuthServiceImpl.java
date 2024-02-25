@@ -87,9 +87,11 @@ public class AuthServiceImpl implements AuthService {
 
     private User convertSignUpDtoToUser(SignUpDto signUpDto) {
         return User.builder()
+                .name(signUpDto.getName())
                 .email(signUpDto.getEmail())
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword().trim()))
+                .phone(signUpDto.getPhone())
                 .roles(Collections.singletonList(Role.ROLE_USER))
                 .build();
     }
