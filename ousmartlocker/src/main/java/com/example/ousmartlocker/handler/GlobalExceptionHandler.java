@@ -1,7 +1,7 @@
 package com.example.ousmartlocker.handler;
 
 import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
-import com.example.ousmartlocker.exception.PersistenceDataFailException;
+import com.example.ousmartlocker.exception.OuSmartLockerUnauthorizedApiException;
 import com.example.ousmartlocker.model.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +23,18 @@ public class GlobalExceptionHandler {
         errorDetails.setDevErrorMessage(request.getDescription(false));
         errorDetails.setTimestamp(System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(OuSmartLockerUnauthorizedApiException.class)
+    public ResponseEntity<ErrorDetails> handleUnauthorizedApiException(
+            OuSmartLockerUnauthorizedApiException exception,
+            WebRequest request
+    ) {
+        final ErrorDetails errorDetails = new ErrorDetails();
+        errorDetails.setErrorMessage(exception.getLocalizedMessage());
+        errorDetails.setDevErrorMessage(request.getDescription(false));
+        errorDetails.setTimestamp(System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -48,18 +60,6 @@ public class GlobalExceptionHandler {
         errorDetails.setDevErrorMessage(request.getDescription(false));
         errorDetails.setTimestamp(System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
-    }
-
-    @ExceptionHandler(PersistenceDataFailException.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(
-            PersistenceDataFailException exception,
-            WebRequest request
-    ) {
-        final ErrorDetails errorDetails = new ErrorDetails();
-        errorDetails.setErrorMessage(exception.getLocalizedMessage());
-        errorDetails.setDevErrorMessage(request.getDescription(false));
-        errorDetails.setTimestamp(System.currentTimeMillis());
-        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorDetails);
     }
 
 }

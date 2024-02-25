@@ -32,7 +32,7 @@ public class ReadToken {
 
     public Map<String, Object> getIdentity(String jwt, HttpServletRequest request) throws IOException {
         if (jwt == null) jwt = request.getHeader("Authorization");
-        String tokenValue = jwt.replace("bearer", "").trim();
+        String tokenValue = jwt.replace("Bearer", "").trim();
         Map<String, Object> jwtBody = mapper.readValue(parseJWT(tokenValue), new TypeReference<>() {
         });
         return jwtBody;
