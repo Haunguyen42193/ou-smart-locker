@@ -28,6 +28,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
     private String name;
+    private String phone;
     private List<Role> roles;
 
     @Override
