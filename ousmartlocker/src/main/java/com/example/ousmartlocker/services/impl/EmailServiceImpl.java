@@ -1,5 +1,6 @@
 package com.example.ousmartlocker.services.impl;
 
+import com.example.ousmartlocker.exception.SendingMailException;
 import com.example.ousmartlocker.model.EmailDetails;
 import com.example.ousmartlocker.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,7 @@ public class EmailServiceImpl implements EmailService {
 
     public String sendSimpleMail(EmailDetails details)
     {
-
-        // Try block to check for exceptions
         try {
-
-            // Creating a simple mail message
             SimpleMailMessage mailMessage
                     = new SimpleMailMessage();
             StringBuilder msgBody = new StringBuilder("Hi " + details.getName() + ",\n" +
@@ -32,20 +29,15 @@ public class EmailServiceImpl implements EmailService {
                     "\n" +
                     "Contact us: 0987654321");
 
-            // Setting up necessary details
             mailMessage.setFrom(sender);
             mailMessage.setTo(details.getMail());
             mailMessage.setText(msgBody.toString());
             mailMessage.setSubject("You have request on SmartLocker");
 
-            // Sending the mail
             mailSender.send(mailMessage);
             return "Mail Sent Successfully...";
-        }
-
-        // Catch block to handle the exceptions
-        catch (Exception e) {
-            return "Error while Sending Mail";
+        } catch (Exception e) {
+            throw new SendingMailException("Error while Sending Mail");
         }
     }
 
