@@ -7,9 +7,14 @@ pipeline {
     stages {
         stage('Build Maven') {
             steps {
-                checkout scmGit(branches: [[name: '*/hau']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Haunguyen42193/ou-smart-locker']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Haunguyen42193/ou-smart-locker']])
                 bat 'mvn -v'
                 bat 'mvn clean install'
+            }
+        }
+        stage('Run Test') {
+            steps {
+                bat 'mvn test'
             }
         }
         stage('Build Image') {
