@@ -19,8 +19,5 @@ public class Locker {
     private String lockerLocation;
     @Column(name = "is_occupied")
     private Boolean isOccupied;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 }
 

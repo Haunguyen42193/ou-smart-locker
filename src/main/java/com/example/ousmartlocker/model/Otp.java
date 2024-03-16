@@ -14,7 +14,7 @@ public class Otp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long otpId;
     private String otpNumber;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "locker_id")
     private Locker locker;
     private String setGeneratedAt;

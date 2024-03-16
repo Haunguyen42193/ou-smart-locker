@@ -32,6 +32,10 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/auth/**")
                         .permitAll()
+                        .requestMatchers("/api/user/forgot-password")
+                        .permitAll()
+                        .requestMatchers("/api/user/forgot-password/confirm")
+                        .permitAll()
                 .requestMatchers(HttpMethod.POST,
                         "/api/locker/**",
                         "api/schedule/**",
