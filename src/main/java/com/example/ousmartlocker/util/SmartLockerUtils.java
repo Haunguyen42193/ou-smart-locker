@@ -1,5 +1,7 @@
 package com.example.ousmartlocker.util;
 
+import com.example.ousmartlocker.exception.OtpInvalidException;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
@@ -16,5 +18,11 @@ public class SmartLockerUtils {
 
     private static boolean patternMatches(String s, String regexPattern) {
         return Pattern.compile(regexPattern).matcher(s).matches();
+    }
+
+    public static void validateExpireTime(String time){
+        LocalDateTime expireTime = LocalDateTime.parse(time, SmartLockerUtils.formatter);
+        if (expireTime.isBefore(SmartLockerUtils.currentTime))
+            throw new OtpInvalidException("Expired time");
     }
 }

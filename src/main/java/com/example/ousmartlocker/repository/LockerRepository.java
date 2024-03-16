@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface LockerRepository extends JpaRepository<Locker, Long> {
 
-    @Query("select l from locker l where l.isOccupied = false ")
-    List<Locker> findByIsOccupiedFalse();
+    @Query("select l from locker l where l.isOccupied = false and l.lockerLocation.locationId = :locationId")
+    List<Locker> findByIsOccupiedFalseAndLockerLocation(Long locationId);
 
 }

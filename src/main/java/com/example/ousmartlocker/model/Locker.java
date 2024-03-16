@@ -16,8 +16,9 @@ public class Locker {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lockerId;
     private String lockerName;
-    private String lockerLocation;
     @Column(name = "is_occupied")
     private Boolean isOccupied;
+    @ManyToOne
+    private LockerLocation lockerLocation;
 }
 

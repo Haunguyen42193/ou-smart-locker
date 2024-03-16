@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
         PassResetOtp passResetOtp = passResetOtpRepository.findByOtp(requestDto.getOtp());
         if (Objects.isNull(passResetOtp))
             throw new OtpInvalidException("Otp incorrect");
-        validateExpireOtp(passResetOtp);
+        SmartLockerUtils.validateExpireTime(passResetOtp.getExpireTime());
         String newPassword = PasswordUtils.generatePassword();
         User user = passResetOtp.getUser();
         if (Objects.isNull(user))
@@ -147,11 +147,5 @@ public class UserServiceImpl implements UserService {
                 .build();
         passResetOtpRepository.save(passResetOtp);
         return passResetOtp;
-    }
-
-    private void validateExpireOtp(PassResetOtp otp){
-        LocalDateTime expireTime = LocalDateTime.parse(otp.getExpireTime(), SmartLockerUtils.formatter);
-        if (expireTime.isBefore(SmartLockerUtils.currentTime))
-            throw new OtpInvalidException("Otp is expire");
     }
 }
