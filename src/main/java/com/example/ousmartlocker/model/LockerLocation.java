@@ -12,14 +12,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class History {
+public class LockerLocation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long historyId;
-    private Long userSend;
-    private Long shipper;
-    private Long receiver;
-    private Long lockerId;
-    private String startTime;
-    private String endTime;
+    private Long locationId;
+    private String location;
 }

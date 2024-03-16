@@ -1,17 +1,10 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.dto.EmailDetailDto;
-import com.example.ousmartlocker.dto.EmailInfoRequestDto;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
-import com.example.ousmartlocker.dto.ReRegisterLockerDto;
+import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.TokenInvalidException;
 import com.example.ousmartlocker.exception.UserNotFoundException;
-import com.example.ousmartlocker.model.Locker;
-import com.example.ousmartlocker.model.Otp;
-import com.example.ousmartlocker.model.User;
-import com.example.ousmartlocker.repository.LockerRepository;
-import com.example.ousmartlocker.repository.OtpRepository;
-import com.example.ousmartlocker.repository.UserRepository;
+import com.example.ousmartlocker.model.*;
+import com.example.ousmartlocker.repository.*;
 import com.example.ousmartlocker.services.EmailService;
 import com.example.ousmartlocker.services.LockerService;
 import com.example.ousmartlocker.util.ReadToken;
@@ -35,6 +28,10 @@ public class LockerServiceImpl implements LockerService {
     @Autowired
     private OtpRepository otpRepository;
     @Autowired
+    private LockerLocationRepository lockerLocationRepository;
+    @Autowired
+    private HistoryRepository historyRepository;
+    @Autowired
     private EmailService emailService;
     @Autowired
     private ReadToken readToken;
@@ -50,8 +47,8 @@ public class LockerServiceImpl implements LockerService {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerRepository.findAll()).build();
     }
     @Override
-    public OuSmartLockerResp registerLocker() {
-        List<Locker> availableLockers = lockerRepository.findByIsOccupiedFalse();
+    public OuSmartLockerResp registerLocker(RegisterLockerDto registerLockerDto) {
+        List<Locker> availableLockers = lockerRepository.findByIsOccupiedFalseAndLockerLocation(registerLockerDto.getLocationSend());
         String userId = readToken.getUserId();
         if (Strings.isBlank(userId))
             throw new TokenInvalidException("Authorized is fail");
@@ -69,6 +66,19 @@ public class LockerServiceImpl implements LockerService {
             lockerRepository.save(selectedLocker);
 
             Otp otp = this.generateOTP(selectedLocker);
+
+            LocalDateTime endTime = SmartLockerUtils.currentTime.plusHours(1);
+
+            History history = History.builder()
+                    .lockerId(selectedLocker.getLockerId())
+                    .startTime(SmartLockerUtils.formatter.format(SmartLockerUtils.currentTime))
+                    .endTime(SmartLockerUtils.formatter.format(endTime))
+                    .shipper(registerLockerDto.getShipper())
+                    .receiver(registerLockerDto.getReceiver())
+                    .userSend(Long.valueOf(userId))
+                    .build();
+
+            historyRepository.save(history);
 
             EmailDetailDto emailDetailDto = EmailDetailDto.builder()
                     .name(user.getName())
@@ -114,6 +124,11 @@ public class LockerServiceImpl implements LockerService {
 
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Re-register locker successful").data("Đăng ký locker thành công").build();
         }
+    }
+
+    @Override
+    public OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation) {
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerLocationRepository.save(lockerLocation)).build();
     }
 
     private Otp generateOTP(Locker locker) {

@@ -17,7 +17,6 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp getAllUser() {
         return userService.getAllUser();
     }
