@@ -19,6 +19,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
+                    sh 'sudo systemctl status docker'
                     sh 'docker build -t haunguyen42195/ou-smart-locker .'
                 }
             }
