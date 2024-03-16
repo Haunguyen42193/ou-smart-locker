@@ -65,7 +65,6 @@ public class LockerServiceImpl implements LockerService {
             SecureRandom random = new SecureRandom();
             int randomIndex = random.nextInt(availableLockers.size());
             Locker selectedLocker = availableLockers.get(randomIndex);
-            selectedLocker.setUser(user); // userRepository là repository cho User
             selectedLocker.setIsOccupied(true);
             lockerRepository.save(selectedLocker);
 
@@ -101,7 +100,6 @@ public class LockerServiceImpl implements LockerService {
             // Xử lý khi không không tìm thấy locker
             return OuSmartLockerResp.builder().status(HttpStatus.NOT_FOUND).message("Not found locker").data("Not found locker").build();
         } else {
-            locker.setUser(user);
             locker.setIsOccupied(true);
             lockerRepository.save(locker);
 

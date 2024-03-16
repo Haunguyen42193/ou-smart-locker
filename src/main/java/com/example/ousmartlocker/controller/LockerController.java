@@ -2,6 +2,7 @@ package com.example.ousmartlocker.controller;
 
 import com.example.ousmartlocker.dto.EmailInfoRequestDto;
 import com.example.ousmartlocker.dto.ReRegisterLockerDto;
+import com.example.ousmartlocker.dto.RegisterLockerDto;
 import com.example.ousmartlocker.model.Locker;
 import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.services.LockerService;
@@ -21,7 +22,7 @@ public class LockerController {
     }
 
     @PostMapping("/register")
-    public OuSmartLockerResp registerLocker() {
+    public OuSmartLockerResp registerLocker(@RequestBody RegisterLockerDto registerLockerDto) {
         return lockerService.registerLocker();
     }
 
