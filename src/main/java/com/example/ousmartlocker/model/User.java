@@ -1,5 +1,6 @@
 package com.example.ousmartlocker.model;
 
+import com.example.ousmartlocker.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +20,7 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long userId;
     private String username;
     private String email;
     @JsonIgnore

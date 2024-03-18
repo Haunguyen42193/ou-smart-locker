@@ -1,10 +1,9 @@
 package com.example.ousmartlocker.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,10 +15,14 @@ public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long historyId;
-    private Long userSend;
-    private Long shipper;
-    private Long receiver;
-    private Long lockerId;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "history")
+    private List<HistoryUser> users;
+    @OneToOne
+    private Locker locker;
     private String startTime;
     private String endTime;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "history")
+    private List<HistoryLocation> location;
+    @OneToOne
+    private Otp otp;
 }

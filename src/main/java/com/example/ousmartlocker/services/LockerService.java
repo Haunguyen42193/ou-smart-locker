@@ -11,9 +11,13 @@ public interface LockerService {
     OuSmartLockerResp addlocker(Locker locker);
     OuSmartLockerResp getAlllocker();
     OuSmartLockerResp registerLocker(RegisterLockerDto registerLockerDto);
-    OuSmartLockerResp confirm(EmailInfoRequestDto emailInfoRequestDto);
+    OuSmartLockerResp reRegisterConfirm(EmailInfoRequestDto emailInfoRequestDto);
 
     OuSmartLockerResp reRegisterLocker(ReRegisterLockerDto reRegisterLockerDto);
 
     OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation);
+
+    OuSmartLockerResp confirmRegisterLockerSuccessful(Long historyId);
+
+    OuSmartLockerResp getHistoryById(Long historyId);
 }

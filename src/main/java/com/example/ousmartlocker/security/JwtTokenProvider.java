@@ -30,7 +30,7 @@ public class JwtTokenProvider {
         Date expireDate = new Date(new Date().getTime() + expiration);
         return Jwts.builder()
                 .setSubject(userName)
-                .claim("userId", user.getId())
+                .claim("userId", user.getUserId())
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
                 .signWith(key())

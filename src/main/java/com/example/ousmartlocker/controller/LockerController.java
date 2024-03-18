@@ -34,7 +34,13 @@ public class LockerController {
         return lockerService.registerLocker(registerLockerDto);
     }
 
+    @GetMapping("/register/confirm/{historyId}")
+    public OuSmartLockerResp confirmRegisterLocker(@PathVariable Long historyId) {
+        return lockerService.confirmRegisterLockerSuccessful(historyId);
+    }
+
     @PostMapping("/re-register")
+    @PreAuthorize("hasRole('SHIPPER')")
     public OuSmartLockerResp reRegisterLocker(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
         return lockerService.reRegisterLocker(reRegisterLockerDto);
     }
@@ -45,9 +51,14 @@ public class LockerController {
         return lockerService.getAlllocker();
     }
 
-    @PostMapping("/confirm")
+    @PostMapping("/re-register/confirm")
     public OuSmartLockerResp confirmLocker(@RequestBody EmailInfoRequestDto emailInfoRequestDto) {
-        return lockerService.confirm(emailInfoRequestDto);
+        return lockerService.reRegisterConfirm(emailInfoRequestDto);
+    }
+
+    @GetMapping("/history/{historyId}")
+    public OuSmartLockerResp getHistoryById(@PathVariable Long historyId) {
+        return lockerService.getHistoryById(historyId);
     }
 }
 

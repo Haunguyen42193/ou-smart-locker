@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class ReRegisterLockerDto {
     private Long historyId;
-    private Long lockerId;
 }

@@ -3,7 +3,7 @@ package com.example.ousmartlocker.services.impl;
 import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.*;
 import com.example.ousmartlocker.model.PassResetOtp;
-import com.example.ousmartlocker.model.Role;
+import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.repository.PassResetOtpRepository;
 import com.example.ousmartlocker.repository.UserRepository;
