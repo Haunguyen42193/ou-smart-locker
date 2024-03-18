@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ConvertData {
     public static UserDto convertUserToUserDto(User user) {
         return UserDto.builder()
-                .id(user.getId())
+                .id(user.getUserId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .username(user.getUsername())

@@ -1,6 +1,6 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.model.Role;
+import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.exception.*;
 import com.example.ousmartlocker.dto.AuthResponseDto;
