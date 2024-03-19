@@ -22,6 +22,7 @@ public class SmartLockerUtils {
 
     public static void validateExpireTime(String time){
         LocalDateTime expireTime = LocalDateTime.parse(time, SmartLockerUtils.formatter);
+        SmartLockerUtils.currentTime = LocalDateTime.now();
         if (expireTime.isBefore(SmartLockerUtils.currentTime))
             throw new OtpInvalidException("Expired time");
     }

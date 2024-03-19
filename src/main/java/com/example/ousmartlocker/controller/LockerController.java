@@ -1,10 +1,9 @@
 package com.example.ousmartlocker.controller;
 
-import com.example.ousmartlocker.dto.EmailInfoRequestDto;
+import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.ReRegisterLockerDto;
 import com.example.ousmartlocker.dto.RegisterLockerDto;
 import com.example.ousmartlocker.model.Locker;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.model.LockerLocation;
 import com.example.ousmartlocker.services.LockerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,43 +16,77 @@ public class LockerController {
     @Autowired
     private LockerService lockerService;
 
+    //Thêm locker
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp addLocker(@RequestBody Locker locker) {
-        return lockerService.addlocker(locker);
+        return lockerService.addLocker(locker);
     }
 
+    //Thêm địa điểm
     @PostMapping("/location/add")
     @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp addLockerLocation(@RequestBody LockerLocation lockerLocation) {
         return lockerService.addLockerLocation(lockerLocation);
     }
 
-    @PostMapping("/register")
-    public OuSmartLockerResp registerLocker(@RequestBody RegisterLockerDto registerLockerDto) {
-        return lockerService.registerLocker(registerLockerDto);
+    //Đăng ký locker
+    @PostMapping("/register/sender/send")
+    public OuSmartLockerResp senderRegisterLocker(@RequestBody RegisterLockerDto registerLockerDto) {
+        return lockerService.senderRegisterLocker(registerLockerDto);
     }
 
-    @GetMapping("/register/confirm/{historyId}")
-    public OuSmartLockerResp confirmRegisterLocker(@PathVariable Long historyId) {
-        return lockerService.confirmRegisterLockerSuccessful(historyId);
+    //Confirm của người gửi
+    @GetMapping("/register/sender/send/confirm/{historyId}")
+    public OuSmartLockerResp confirmSenderRegisterLocker(@PathVariable Long historyId) {
+        return lockerService.confirmSenderRegisterLocker(historyId);
     }
 
-    @PostMapping("/re-register")
+    //Đăng kí của shipper
+    @PostMapping("/register/shipper/get")
     @PreAuthorize("hasRole('SHIPPER')")
-    public OuSmartLockerResp reRegisterLocker(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
-        return lockerService.reRegisterLocker(reRegisterLockerDto);
+    public OuSmartLockerResp shipperRegisterLocker(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
+        return lockerService.shipperRegisterLocker(reRegisterLockerDto);
+    }
+
+    //Confirm của shipper
+    @GetMapping("/register/shipper/get/confirm/{historyId}")
+    @PreAuthorize("hasRole('SHIPPER')")
+    public OuSmartLockerResp confirmShipperRegisterLocker(@PathVariable Long historyId) {
+        return lockerService.confirmShipperRegisterLocker(historyId);
+    }
+
+    //Đăng kí tủ gửi hàng của shipper
+    @PostMapping("/register/shipper/send")
+    @PreAuthorize("hasRole('SHIPPER')")
+    public OuSmartLockerResp shipperRegisterSendLocker(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
+        return lockerService.shipperRegisterSendLocker(reRegisterLockerDto);
+    }
+
+    //confirm tủ gửi hàng của shipper
+    @GetMapping("/register/shipper/send/confirm/{historyId}")
+    @PreAuthorize("hasRole('SHIPPER')")
+    public OuSmartLockerResp confirmShipperRegisterSendLocker(@PathVariable Long historyId) {
+        return lockerService.confirmShipperRegisterSendLocker(historyId);
+    }
+
+    //Đăng kí tủ nhận hàng của người nhận
+    @PostMapping("/register/receiver/get")
+    public OuSmartLockerResp receiverRegisterGetLocker(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
+        return lockerService.receiverRegisterGetLocker(reRegisterLockerDto);
+    }
+
+    //Confirm tủ nhận hàng của người nhận
+    @GetMapping("/register/receiver/get/confirm/{historyId}")
+    @PreAuthorize("hasRole('SHIPPER')")
+    public OuSmartLockerResp confirmReceiverRegisterSendLocker(@PathVariable Long historyId) {
+        return lockerService.confirmReceiverRegisterSendLocker(historyId);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/all")
     public OuSmartLockerResp getAllLocker() {
-        return lockerService.getAlllocker();
-    }
-
-    @PostMapping("/re-register/confirm")
-    public OuSmartLockerResp confirmLocker(@RequestBody EmailInfoRequestDto emailInfoRequestDto) {
-        return lockerService.reRegisterConfirm(emailInfoRequestDto);
+        return lockerService.getAllLocker();
     }
 
     @GetMapping("/history/{historyId}")
