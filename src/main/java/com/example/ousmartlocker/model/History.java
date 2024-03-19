@@ -17,12 +17,12 @@ public class History {
     private Long historyId;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "history")
     private List<HistoryUser> users;
-    @OneToOne
+    @ManyToOne
     private Locker locker;
     private String startTime;
     private String endTime;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "history")
     private List<HistoryLocation> location;
-    @OneToOne
+    @ManyToOne
     private Otp otp;
 }

@@ -126,7 +126,8 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .newPass(newPassword)
                 .build();
-        passResetOtp.setExpireTime(SmartLockerUtils.formatter.format(SmartLockerUtils.currentTime));
+        LocalDateTime currentTime = LocalDateTime.now();
+        passResetOtp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
         passResetOtpRepository.save(passResetOtp);
         emailService.sendNewPassword(passwordDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Confirm success").build();
@@ -136,8 +137,8 @@ public class UserServiceImpl implements UserService {
         SecureRandom random = new SecureRandom();
         int randValue = 100000 + random.nextInt(900000);
         String otp = String.valueOf(randValue);
-
-        LocalDateTime expireTime = SmartLockerUtils.currentTime.plusMinutes(15);
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime expireTime = currentTime.plusMinutes(15);
 
         PassResetOtp passResetOtp = PassResetOtp.builder()
                 .otp(otp)
