@@ -8,7 +8,10 @@ import com.example.ousmartlocker.model.LockerLocation;
 
 public interface LockerService {
     OuSmartLockerResp addLocker(Locker locker);
+
     OuSmartLockerResp getAllLocker();
+
+    OuSmartLockerResp getAllLocation();
 
     OuSmartLockerResp senderRegisterLocker(RegisterLockerDto registerLockerDto);
 
@@ -29,4 +32,6 @@ public interface LockerService {
     OuSmartLockerResp receiverRegisterGetLocker(ReRegisterLockerDto reRegisterLockerDto);
 
     OuSmartLockerResp confirmReceiverRegisterSendLocker(Long historyId);
+
+    OuSmartLockerResp getAllHistory();
 }

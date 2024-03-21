@@ -56,6 +56,11 @@ public class LockerServiceImpl implements LockerService {
     }
 
     @Override
+    public OuSmartLockerResp getAllLocation() {
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerLocationRepository.findAll()).build();
+    }
+
+    @Override
     @Transactional
     public OuSmartLockerResp senderRegisterLocker(RegisterLockerDto registerLockerDto) {
         String userId = readToken.getUserId();
@@ -353,6 +358,12 @@ public class LockerServiceImpl implements LockerService {
         emailService.sendEmail(emailInfoDto);
 
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
+    }
+
+    @Override
+    public OuSmartLockerResp getAllHistory() {
+        List<History> histories = historyRepository.findAll();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(histories).build();
     }
 
     @Override
