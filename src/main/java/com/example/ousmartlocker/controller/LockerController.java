@@ -83,15 +83,24 @@ public class LockerController {
         return lockerService.confirmReceiverRegisterSendLocker(historyId);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/all")
     public OuSmartLockerResp getAllLocker() {
         return lockerService.getAllLocker();
     }
 
+    @GetMapping("/all")
+    public OuSmartLockerResp getAllLocation() {
+        return lockerService.getAllLocation();
+    }
+
     @GetMapping("/history/{historyId}")
     public OuSmartLockerResp getHistoryById(@PathVariable Long historyId) {
         return lockerService.getHistoryById(historyId);
+    }
+
+    @GetMapping("/history/all")
+    public OuSmartLockerResp getAllHistory() {
+        return lockerService.getAllHistory();
     }
 }
 

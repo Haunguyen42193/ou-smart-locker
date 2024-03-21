@@ -1,14 +1,13 @@
 package com.example.ousmartlocker.controller;
 
-import com.example.ousmartlocker.dto.*;
+import com.example.ousmartlocker.dto.ChangePassDto;
+import com.example.ousmartlocker.dto.EmailInfoRequestDto;
+import com.example.ousmartlocker.dto.ForgotPasswordRequest;
+import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/user")
@@ -42,22 +41,5 @@ public class UserController {
     @PostMapping("/forgot-password/confirm")
     public OuSmartLockerResp confirmResetPass(@RequestBody EmailInfoRequestDto requestDto) {
         return userService.confirm(requestDto);
-    }
-
-    @GetMapping(value = "/sendSMS")
-    public ResponseEntity<String> sendSMS(@RequestBody MessageDetails messageDetails) {
-        SpeedSMSAPI api  = new SpeedSMSAPI("JcOM8w8tjyZV_zpv4omMw7HdCN4p-INy");
-        try {
-            String userInfo = api.getUserInfo();
-            String phone = "84899256655";
-            String content = "test sms";
-            int type = 2;
-            String sender = "84975256347";
-            String response = api.sendSMS(phone, content, type, sender);
-            System.out.println(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<String>("Message sent successfully", HttpStatus.OK);
     }
 }
