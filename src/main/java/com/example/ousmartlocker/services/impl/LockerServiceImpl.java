@@ -375,7 +375,31 @@ public class LockerServiceImpl implements LockerService {
     @Override
     public OuSmartLockerResp getHistoryById(Long historyId) {
         History history = historyRepository.findById(historyId).orElse(null);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(history).build();
+        if (Objects.isNull(history))
+            throw new HistoryNotFoundException("Not found history");
+        HistoryDto historyDto = HistoryDto.builder()
+                .historyId(history.getHistoryId())
+                .locker(history.getLocker())
+                .endTime(history.getEndTime())
+                .startTime(history.getStartTime())
+                .location(history.getLocation().stream().map(this::mapHistoryLocationToDto).toList())
+                .users(history.getUsers().stream().map(this::mapHistoryUserToDto).toList())
+                .build();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
+    }
+
+    private HistoryUserDto mapHistoryUserToDto(HistoryUser historyUser) {
+        return HistoryUserDto.builder()
+                .user(historyUser.getUser())
+                .role(historyUser.getRole())
+                .build();
+    }
+
+    private HistoryLocationDto mapHistoryLocationToDto(HistoryLocation historyLocation) {
+        return HistoryLocationDto.builder()
+                .location(historyLocation.getLocation())
+                .role(historyLocation.getRole())
+                .build();
     }
 
     private Otp generateOTP(Locker locker) {

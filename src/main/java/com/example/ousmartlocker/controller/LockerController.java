@@ -83,12 +83,12 @@ public class LockerController {
         return lockerService.confirmReceiverRegisterSendLocker(historyId);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/locker")
     public OuSmartLockerResp getAllLocker() {
         return lockerService.getAllLocker();
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/location")
     public OuSmartLockerResp getAllLocation() {
         return lockerService.getAllLocation();
     }
