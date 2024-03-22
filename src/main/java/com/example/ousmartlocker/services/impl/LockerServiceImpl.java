@@ -376,7 +376,6 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp confirmReceiverRegisterSendLocker(Long historyId) {
-        LocalDateTime currentTime = LocalDateTime.now();
         History history = historyRepository.findById(historyId).orElse(null);
         assert history != null;
         String userId = readToken.getUserId();
