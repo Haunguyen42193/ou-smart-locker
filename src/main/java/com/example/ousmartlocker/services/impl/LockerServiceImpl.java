@@ -242,31 +242,69 @@ public class LockerServiceImpl implements LockerService {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
+    @Transactional
     public OuSmartLockerResp shipperRegisterSendLocker(ReRegisterLockerDto reRegisterLockerDto) {
         LocalDateTime currentTime = LocalDateTime.now();
 
         History history = historyRepository.findById(reRegisterLockerDto.getHistoryId()).orElse(null);
         assert history != null;
+
         List<HistoryLocation> historyLocations = history.getLocation();
+
         LockerLocation locationReceive = historyLocations.stream()
                 .filter(
                         historyLocation -> historyLocation.getRole().equals(HistoryLocationRole.LOCATION_RECEIVE)
-                ).toList().get(0).getLocation();
+                ).findFirst().orElseThrow(() -> new IllegalStateException("Location receive not found")).getLocation();
+
         List<Locker> availableLockers = lockerRepository.findByIsOccupiedFalseAndLockerLocation(locationReceive.getLocationId());
         Locker selectedLocker = randomLocker(availableLockers);
+        if (Objects.isNull(selectedLocker))
+            return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Fail").data("Locker is full").build();
+
         Otp otp = this.generateOTP(selectedLocker);
+
         String endTime = SmartLockerUtils.formatter.format(currentTime.plusHours(1));
         String startTime = SmartLockerUtils.formatter.format(currentTime);
+
+        List<HistoryUser> historyUsers = mapHistoryUsersNew(history.getUsers());
+        List<HistoryLocation> historyLocationsNew = mapHistoryLocationsNew(historyLocations);
         History historySend = History.builder()
                 .locker(selectedLocker)
                 .otp(otp)
                 .endTime(endTime)
                 .startTime(startTime)
-                .location(historyLocations)
-                .users(history.getUsers())
+                .users(mapHistoryUsersNew(history.getUsers()))
+                .location(mapHistoryLocationsNew(historyLocations))
                 .build();
+
         historyRepository.save(historySend);
+        historyLocationRepository.saveAll(historyLocationsNew);
+        historyUserRepository.saveAll(historyUsers);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
+    }
+
+    private List<HistoryUser> mapHistoryUsersNew(List<HistoryUser> users) {
+        return users.stream().map(this::mapHistoryUserNew).toList();
+    }
+
+    private HistoryUser mapHistoryUserNew(HistoryUser historyUser) {
+        return HistoryUser.builder()
+                .history(historyUser.getHistory())
+                .user(historyUser.getUser())
+                .role(historyUser.getRole())
+                .build();
+    }
+
+    private List<HistoryLocation> mapHistoryLocationsNew(List<HistoryLocation> location) {
+        return location.stream().map(this::mapHistoryLocationNew).toList();
+    }
+
+    private HistoryLocation mapHistoryLocationNew(HistoryLocation historyLocation) {
+        return HistoryLocation.builder()
+                .history(historyLocation.getHistory())
+                .location(historyLocation.getLocation())
+                .role(historyLocation.getRole())
+                .build();
     }
 
     public OuSmartLockerResp confirmShipperRegisterSendLocker(Long historyId) {
@@ -431,6 +469,8 @@ public class LockerServiceImpl implements LockerService {
 
     private Locker randomLocker(List<Locker> availableLockers) {
         SecureRandom random = new SecureRandom();
+        if (availableLockers.size() == 0)
+            return null;
         int randomIndex = random.nextInt(availableLockers.size());
         Locker selectedLocker = availableLockers.get(randomIndex);
         selectedLocker.setIsOccupied(true);
