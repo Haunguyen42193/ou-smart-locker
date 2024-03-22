@@ -273,13 +273,19 @@ public class LockerServiceImpl implements LockerService {
                 .otp(otp)
                 .endTime(endTime)
                 .startTime(startTime)
-                .users(mapHistoryUsersNew(history.getUsers()))
-                .location(mapHistoryLocationsNew(historyLocations))
                 .build();
 
+        for (HistoryLocation historyLocation: historyLocationsNew) {
+            historyLocation.setHistory(historySend);
+        }
+
+        for (HistoryUser historyUser: historyUsers) {
+            historyUser.setHistory(historySend);
+        }
+        historySend.setUsers(historyUsers);
+        historySend.setLocation(historyLocationsNew);
+
         historyRepository.save(historySend);
-        historyLocationRepository.saveAll(historyLocationsNew);
-        historyUserRepository.saveAll(historyUsers);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
