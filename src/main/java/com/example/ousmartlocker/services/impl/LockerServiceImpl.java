@@ -363,7 +363,8 @@ public class LockerServiceImpl implements LockerService {
     @Override
     public OuSmartLockerResp getAllHistory() {
         List<History> histories = historyRepository.findAll();
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(histories).build();
+        List<HistoryDto> historyDtos = histories.stream().map(this::mapHistoryToDto).toList();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDtos).build();
     }
 
     @Override
@@ -377,15 +378,20 @@ public class LockerServiceImpl implements LockerService {
         History history = historyRepository.findById(historyId).orElse(null);
         if (Objects.isNull(history))
             throw new HistoryNotFoundException("Not found history");
-        HistoryDto historyDto = HistoryDto.builder()
+        HistoryDto historyDto = mapHistoryToDto(history);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
+    }
+
+    private HistoryDto mapHistoryToDto(History history) {
+        return HistoryDto.builder()
                 .historyId(history.getHistoryId())
                 .locker(history.getLocker())
                 .endTime(history.getEndTime())
                 .startTime(history.getStartTime())
                 .location(history.getLocation().stream().map(this::mapHistoryLocationToDto).toList())
                 .users(history.getUsers().stream().map(this::mapHistoryUserToDto).toList())
+                .otp(history.getOtp())
                 .build();
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
     }
 
     private HistoryUserDto mapHistoryUserToDto(HistoryUser historyUser) {
