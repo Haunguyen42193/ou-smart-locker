@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
         PassResetOtp passResetOtp = PassResetOtp.builder()
                 .otp(otp)
                 .user(user)
-                .setGeneratedAt(SmartLockerUtils.formatter.format(SmartLockerUtils.currentTime))
+                .setGeneratedAt(SmartLockerUtils.formatter.format(currentTime))
                 .expireTime(SmartLockerUtils.formatter.format(expireTime))
                 .build();
         passResetOtpRepository.save(passResetOtp);
