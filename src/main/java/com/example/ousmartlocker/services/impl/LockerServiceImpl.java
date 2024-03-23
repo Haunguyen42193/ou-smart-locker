@@ -284,8 +284,11 @@ public class LockerServiceImpl implements LockerService {
         }
         historySend.setUsers(historyUsers);
         historySend.setLocation(historyLocationsNew);
+        historySend.setOnProcedure(history.getHistoryId());
 
         historyRepository.save(historySend);
+        history.setOnProcedure(historySend.getHistoryId());
+        historyRepository.save(history);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -434,6 +437,7 @@ public class LockerServiceImpl implements LockerService {
                 .location(history.getLocation().stream().map(this::mapHistoryLocationToDto).toList())
                 .users(history.getUsers().stream().map(this::mapHistoryUserToDto).toList())
                 .otp(history.getOtp())
+                .onProcedure(history.getOnProcedure())
                 .build();
     }
 
