@@ -19,4 +19,5 @@ public class HistoryDto {
     private String endTime;
     private List<HistoryLocationDto> location;
     private Otp otp;
+    private Long onProcedure;
 }

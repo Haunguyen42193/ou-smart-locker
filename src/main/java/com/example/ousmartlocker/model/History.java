@@ -25,4 +25,5 @@ public class History {
     private List<HistoryLocation> location;
     @ManyToOne
     private Otp otp;
+    private Long onProcedure;
 }
