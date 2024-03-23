@@ -384,6 +384,8 @@ public class LockerServiceImpl implements LockerService {
     public OuSmartLockerResp confirmReceiverRegisterSendLocker(Long historyId) {
         History history = historyRepository.findById(historyId).orElse(null);
         assert history != null;
+        history.setEndTime(SmartLockerUtils.formatter.format(LocalDateTime.now()));
+        historyRepository.save(history);
         String userId = readToken.getUserId();
         User receiver = userRepository.findById(Long.valueOf(userId)).orElse(null);
         if (Objects.isNull(receiver))
