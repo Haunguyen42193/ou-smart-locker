@@ -42,6 +42,13 @@ public class LockerController {
         return lockerService.confirmSenderRegisterLocker(historyId);
     }
 
+    //Xác nhận nhận đơn của shipper
+    @GetMapping("/register/shipper/confirm-order/{historyId}")
+    @PreAuthorize("hasRole('SHIPPER')")
+    public OuSmartLockerResp shipperRegisterLocker(@PathVariable Long historyId) {
+        return lockerService.shipperConfirmOrderLocker(historyId);
+    }
+
     //Đăng kí của shipper
     @PostMapping("/register/shipper/get")
     @PreAuthorize("hasRole('SHIPPER')")
