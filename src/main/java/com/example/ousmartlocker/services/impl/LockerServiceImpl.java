@@ -386,6 +386,9 @@ public class LockerServiceImpl implements LockerService {
         assert history != null;
         history.setEndTime(SmartLockerUtils.formatter.format(LocalDateTime.now()));
         historyRepository.save(history);
+        Locker locker = history.getLocker();
+        locker.setIsOccupied(false);
+        lockerRepository.save(locker);
         String userId = readToken.getUserId();
         User receiver = userRepository.findById(Long.valueOf(userId)).orElse(null);
         if (Objects.isNull(receiver))
