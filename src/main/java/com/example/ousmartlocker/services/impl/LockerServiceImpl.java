@@ -182,10 +182,7 @@ public class LockerServiceImpl implements LockerService {
         User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
         if (Objects.isNull(user))
             throw new UserNotFoundException("User not found!");
-        HistoryUser historyShipper = HistoryUser.builder().user(user).role(HistoryUserRole.SHIPPER).history(history).build();
-        List<HistoryUser> historyUsers = history.getUsers();
-        historyUsers.add(historyShipper);
-        history.setUsers(historyUsers);
+
         Locker locker = history.getLocker();
         if (Strings.isBlank(userId))
             throw new TokenInvalidException("Authentication is fail");
@@ -411,6 +408,23 @@ public class LockerServiceImpl implements LockerService {
         List<History> histories = historyRepository.findAll();
         List<HistoryDto> historyDtos = histories.stream().map(this::mapHistoryToDto).toList();
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDtos).build();
+    }
+
+    @Override
+    public OuSmartLockerResp shipperConfirmOrderLocker(Long historyId) {
+        History history = historyRepository.findById(historyId).orElse(null);
+        if (Objects.isNull(history))
+            throw new HistoryInvalidException("Can not find history");
+        String userId = readToken.getUserId();
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
+        if (Objects.isNull(user))
+            throw new UserNotFoundException("User not found!");
+        HistoryUser historyShipper = HistoryUser.builder().user(user).role(HistoryUserRole.SHIPPER).history(history).build();
+        List<HistoryUser> historyUsers = history.getUsers();
+        historyUsers.add(historyShipper);
+        history.setUsers(historyUsers);
+        historyRepository.save(history);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
     }
 
     @Override

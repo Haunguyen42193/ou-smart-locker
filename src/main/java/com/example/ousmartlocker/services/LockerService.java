@@ -34,4 +34,6 @@ public interface LockerService {
     OuSmartLockerResp confirmReceiverRegisterSendLocker(Long historyId);
 
     OuSmartLockerResp getAllHistory();
+
+    OuSmartLockerResp shipperConfirmOrderLocker(Long historyId);
 }
