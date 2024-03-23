@@ -85,7 +85,6 @@ public class LockerController {
 
     //Confirm tủ nhận hàng của người nhận
     @GetMapping("/register/receiver/get/confirm/{historyId}")
-    @PreAuthorize("hasRole('SHIPPER')")
     public OuSmartLockerResp confirmReceiverRegisterSendLocker(@PathVariable Long historyId) {
         return lockerService.confirmReceiverRegisterSendLocker(historyId);
     }
