@@ -332,7 +332,7 @@ public class LockerServiceImpl implements LockerService {
         historyRepository.save(history);
         Otp otp = history.getOtp();
         otp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
-
+        otpRepository.save(otp);
         String msgBody = "Hi " + receiver.getName() + ",\n" +
                 "\n" +
                 "You have an order at " + locationReceive + "\n" +
