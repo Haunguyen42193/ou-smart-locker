@@ -233,7 +233,7 @@ public class LockerServiceImpl implements LockerService {
         EmailInfoDto emailInfoDto = EmailInfoDto.builder()
                 .mail(sender.getEmail())
                 .content(msgBody)
-                .subject("New order").build();
+                .subject("Order shipped").build();
         emailService.sendEmail(emailInfoDto);
 
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
@@ -242,6 +242,13 @@ public class LockerServiceImpl implements LockerService {
     @Transactional
     public OuSmartLockerResp shipperRegisterSendLocker(ReRegisterLockerDto reRegisterLockerDto) {
         LocalDateTime currentTime = LocalDateTime.now();
+
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId))
+            throw new TokenInvalidException("Authorized is fail");
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
+        if (Objects.isNull(user))
+            throw new UserNotFoundException("User not found!");
 
         History history = historyRepository.findById(reRegisterLockerDto.getHistoryId()).orElse(null);
         assert history != null;
@@ -286,6 +293,13 @@ public class LockerServiceImpl implements LockerService {
         historyRepository.save(historySend);
         history.setOnProcedure(historySend.getHistoryId());
         historyRepository.save(history);
+
+        EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+                .name(user.getName())
+                .mail(user.getEmail())
+                .otp(history.getOtp().getOtpNumber()).build();
+
+        emailService.sendRegisterLockerMail(emailDetailDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -358,7 +372,6 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp receiverRegisterGetLocker(ReRegisterLockerDto reRegisterLockerDto) {
-        LocalDateTime currentTime = LocalDateTime.now();
 
         String userId = readToken.getUserId();
         User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
@@ -382,6 +395,8 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp confirmReceiverRegisterSendLocker(Long historyId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+
         History history = historyRepository.findById(historyId).orElse(null);
         assert history != null;
         history.setEndTime(SmartLockerUtils.formatter.format(LocalDateTime.now()));
@@ -395,7 +410,9 @@ public class LockerServiceImpl implements LockerService {
             throw new AuthorizedFailException("Authorized fail");
         List<HistoryUser> users = history.getUsers();
         User sender = users.stream().filter(historyUser -> historyUser.getRole().equals(HistoryUserRole.SENDER)).toList().get(0).getUser();
-
+        Otp otp = history.getOtp();
+        otp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
+        otpRepository.save(otp);
         String msgBody = "Hi " + sender.getName() + ",\n" +
                 "\n" +
                 "Your order had been sent to " + receiver.getName() + "\n";
@@ -429,6 +446,15 @@ public class LockerServiceImpl implements LockerService {
         historyUsers.add(historyShipper);
         history.setUsers(historyUsers);
         historyRepository.save(history);
+        User sender = historyUsers.stream().filter(historyUser -> historyUser.getRole() == HistoryUserRole.SENDER).findFirst().get().getUser();
+        String msgBody = "Hi " + sender.getName() + ",\n" +
+                "\n" +
+                "Your order has been confirmed by " + historyShipper.getUser().getName() + "\n";
+        EmailInfoDto emailInfoDto = EmailInfoDto.builder()
+                .mail(sender.getEmail())
+                .content(msgBody)
+                .subject("Order confirmed").build();
+        emailService.sendEmail(emailInfoDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
     }
 
