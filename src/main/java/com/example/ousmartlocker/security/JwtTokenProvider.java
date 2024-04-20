@@ -1,7 +1,7 @@
 package com.example.ousmartlocker.security;
 
-import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
+import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -21,8 +21,12 @@ public class JwtTokenProvider {
     private String jwtSecretKey;
     @Value("${app.jwt-expiration-milliseconds}")
     private Long expiration;
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public JwtTokenProvider(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public String generateToken(Authentication authentication) {
         String userName = authentication.getName();

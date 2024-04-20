@@ -1,13 +1,9 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.model.enums.Role;
-import com.example.ousmartlocker.model.User;
+import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.*;
-import com.example.ousmartlocker.dto.AuthResponseDto;
-import com.example.ousmartlocker.dto.ConvertData;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
-import com.example.ousmartlocker.dto.LoginDto;
-import com.example.ousmartlocker.dto.SignUpDto;
+import com.example.ousmartlocker.model.User;
+import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.security.JwtTokenProvider;
 import com.example.ousmartlocker.services.AuthService;
@@ -29,17 +25,26 @@ import java.util.Objects;
 
 @Service
 public class AuthServiceImpl implements AuthService {
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    private final UserRepository userRepository;
+
+    private final JwtTokenProvider tokenProvider;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtTokenProvider tokenProvider;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthServiceImpl(
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository,
+            JwtTokenProvider tokenProvider,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.tokenProvider = tokenProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Value("${app.jwt-expiration-milliseconds}")
     private Long expiration;

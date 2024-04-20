@@ -19,30 +19,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class LockerServiceImpl implements LockerService {
+    private final LockerRepository lockerRepository;
+    private final UserRepository userRepository;
+    private final OtpRepository otpRepository;
+    private final LockerLocationRepository lockerLocationRepository;
+    private final HistoryRepository historyRepository;
+    private final HistoryUserRepository historyUserRepository;
+    private final HistoryLocationRepository historyLocationRepository;
+    private final LockerOtpRepository lockerOtpRepository;
+    private final EmailService emailService;
+    private final ReadToken readToken;
+
     @Autowired
-    private LockerRepository lockerRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private OtpRepository otpRepository;
-    @Autowired
-    private LockerLocationRepository lockerLocationRepository;
-    @Autowired
-    private HistoryRepository historyRepository;
-    @Autowired
-    private HistoryUserRepository historyUserRepository;
-    @Autowired
-    private HistoryLocationRepository historyLocationRepository;
-    @Autowired
-    private LockerOtpRepository lockerOtpRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private ReadToken readToken;
+    public LockerServiceImpl(LockerRepository lockerRepository, UserRepository userRepository, OtpRepository otpRepository, LockerLocationRepository lockerLocationRepository, HistoryRepository historyRepository, HistoryUserRepository historyUserRepository, HistoryLocationRepository historyLocationRepository, LockerOtpRepository lockerOtpRepository, EmailService emailService, ReadToken readToken) {
+        this.lockerRepository = lockerRepository;
+        this.userRepository = userRepository;
+        this.otpRepository = otpRepository;
+        this.lockerLocationRepository = lockerLocationRepository;
+        this.historyRepository = historyRepository;
+        this.historyUserRepository = historyUserRepository;
+        this.historyLocationRepository = historyLocationRepository;
+        this.lockerOtpRepository = lockerOtpRepository;
+        this.emailService = emailService;
+        this.readToken = readToken;
+    }
 
     @Override
     public OuSmartLockerResp addLocker(Locker locker) {
@@ -459,6 +466,78 @@ public class LockerServiceImpl implements LockerService {
     }
 
     @Override
+    public OuSmartLockerResp verifyAndOpenLocker(OpenLockerRequestDto request) {
+        List<Otp> otps = otpRepository.findByOtpNumber(request.getOtp());
+        if (otps.isEmpty())
+            throw new OtpInvalidException("Not found otp");
+        Otp otpRequest = null;
+        for (Otp otp: otps) {
+            SmartLockerUtils.validateExpireTime(otp.getExpireTime());
+            otpRequest = otp;
+            if (!Objects.isNull(otpRequest))
+                break;
+        }
+        Optional<LockerOtp> lockerOtpOptional = lockerOtpRepository.findByOtp(otpRequest);
+        if (!lockerOtpOptional.isPresent()) {
+            return OuSmartLockerResp.builder()
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("Locker OTP not found")
+                    .build();
+        }
+
+        LockerOtp lockerOtp = lockerOtpOptional.get();
+        Otp otp = lockerOtp.getOtp();
+        otp.setExpireTime(SmartLockerUtils.formatter.format(LocalDateTime.now()));
+        otpRepository.saveAndFlush(otp);
+        if (!otp.getOtpNumber().equals(request.getOtp())) {
+            return OuSmartLockerResp.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("Invalid or expired OTP")
+                    .build();
+        }
+
+        Locker locker = lockerOtp.getLocker();
+        locker.setIsOccupied(false); // Mark the locker as not occupied anymore
+        lockerRepository.save(locker);
+
+        // Here would be the integration point for the actual locker hardware interaction logic
+        return OuSmartLockerResp.builder()
+                .status(HttpStatus.OK)
+                .message("Locker opened successfully")
+                .data(locker)
+                .build();
+    }
+
+    @Override
+    public OuSmartLockerResp registerRetry(ReRegisterLockerDto reRegisterLockerDto) {
+        History history = historyRepository.findById(reRegisterLockerDto.getHistoryId()).orElse(null);
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId))
+            throw new TokenInvalidException("Authorized is fail");
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
+        if (Objects.isNull(user))
+            throw new UserNotFoundException("User not found!");
+        if (Objects.isNull(history))
+            throw new HistoryNotFoundException("Not found history");
+        Otp otpNew = generateOTP(history.getLocker());
+        history.setOtp(otpNew);
+        historyRepository.save(history);
+        String msgBody = "Hi " + user.getName() + ",\n" +
+                "\n" +
+                "Your OTP is " + otpNew.getOtpNumber() + ".\n" +
+                "\n" +
+                "Using this for unlocked SmartLocker\n" +
+                "\n" +
+                "Contact us: 0987654321";
+        EmailInfoDto emailInfoDto = EmailInfoDto.builder()
+                .mail(user.getEmail())
+                .content(msgBody)
+                .subject("New order").build();
+        emailService.sendEmail(emailInfoDto);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(otpNew).build();
+    }
+
+    @Override
     public OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation) {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerLocationRepository.save(lockerLocation)).build();
     }
@@ -519,6 +598,11 @@ public class LockerServiceImpl implements LockerService {
         lockerOtpRepository.save(lockerOtp);
 
         return otpInfo;
+    }
+
+    private boolean isOtpExpired(Otp otp) {
+        LocalDateTime expiryTime = LocalDateTime.parse(otp.getExpireTime(), SmartLockerUtils.formatter);
+        return LocalDateTime.now().isAfter(expiryTime);
     }
 
     private Locker randomLocker(List<Locker> availableLockers) {

@@ -3,8 +3,8 @@ package com.example.ousmartlocker.services.impl;
 import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.*;
 import com.example.ousmartlocker.model.PassResetOtp;
-import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.model.User;
+import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.PassResetOtpRepository;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.services.EmailService;
@@ -26,20 +26,24 @@ import java.util.Objects;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final ReadToken readToken;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final PassResetOtpRepository passResetOtpRepository;
+
+    private final EmailService emailService;
 
     @Autowired
-    private ReadToken readToken;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private PassResetOtpRepository passResetOtpRepository;
-
-    @Autowired
-    private EmailService emailService;
+    public UserServiceImpl(UserRepository userRepository, ReadToken readToken, PasswordEncoder passwordEncoder, PassResetOtpRepository passResetOtpRepository, EmailService emailService) {
+        this.userRepository = userRepository;
+        this.readToken = readToken;
+        this.passwordEncoder = passwordEncoder;
+        this.passResetOtpRepository = passResetOtpRepository;
+        this.emailService = emailService;
+    }
 
     @Override
     public OuSmartLockerResp getAllUser() {
@@ -121,7 +125,7 @@ public class UserServiceImpl implements UserService {
             throw new OuSmartLockerInternalErrorException("Something wrong. Try again");
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        EmailPassworDto passwordDto = EmailPassworDto.builder()
+        EmailPasswordDto passwordDto = EmailPasswordDto.builder()
                 .mail(user.getEmail())
                 .name(user.getName())
                 .newPass(newPassword)

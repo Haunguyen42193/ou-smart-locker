@@ -1,7 +1,7 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.model.User;
+import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,12 @@ import java.util.Objects;
 
 @Service
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public CustomUserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {

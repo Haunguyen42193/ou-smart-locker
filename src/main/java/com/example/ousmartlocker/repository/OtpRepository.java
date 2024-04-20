@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface OtpRepository extends JpaRepository<Otp, Long> {
-    List<Otp> findByLockerOtp_Locker_LockerId(Long lockerId);
+    List<Otp> findByOtpNumber(String otp);
 }

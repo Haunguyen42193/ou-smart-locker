@@ -1,5 +1,6 @@
 package com.example.ousmartlocker.services;
 
+import com.example.ousmartlocker.dto.OpenLockerRequestDto;
 import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.ReRegisterLockerDto;
 import com.example.ousmartlocker.dto.RegisterLockerDto;
@@ -36,4 +37,8 @@ public interface LockerService {
     OuSmartLockerResp getAllHistory();
 
     OuSmartLockerResp shipperConfirmOrderLocker(Long historyId);
+
+    OuSmartLockerResp verifyAndOpenLocker(OpenLockerRequestDto request);
+
+    OuSmartLockerResp registerRetry(ReRegisterLockerDto reRegisterLockerDto);
 }
