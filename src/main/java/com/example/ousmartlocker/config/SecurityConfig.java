@@ -19,12 +19,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final JwtEntryPoint jwtEntryPoint;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
     @Autowired
-    private JwtEntryPoint jwtEntryPoint;
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
-    @Autowired
-    private AuthenticationProvider authenticationProvider;
+    public SecurityConfig(JwtEntryPoint jwtEntryPoint, JwtAuthFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
+        this.jwtEntryPoint = jwtEntryPoint;
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.authenticationProvider = authenticationProvider;
+    }
+
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -36,14 +40,16 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/user/forgot-password/confirm")
                         .permitAll()
-                .requestMatchers(HttpMethod.POST,
-                        "/api/locker/**",
-                        "api/schedule/**",
-                        "api/user/**")
-                       // "api//add")
-                .authenticated())
+                        .requestMatchers("api/locker/open-locker")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "api/locker/**",
+                                "api/schedule/**",
+                                "api/user/**")
+                        // "api//add")
+                        .authenticated())
                 //.requestMatchers(HttpMethod.POST, "/api/reservation/add")
-               // .permitAll()
+                // .permitAll()
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint))
                 .authenticationProvider(authenticationProvider)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

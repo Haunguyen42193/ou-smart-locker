@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EmailPassworDto {
+public class EmailPasswordDto {
     private String mail;
     private String name;
     private String newPass;

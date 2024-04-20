@@ -1,5 +1,6 @@
 package com.example.ousmartlocker.controller;
 
+import com.example.ousmartlocker.dto.OpenLockerRequestDto;
 import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.ReRegisterLockerDto;
 import com.example.ousmartlocker.dto.RegisterLockerDto;
@@ -7,14 +8,19 @@ import com.example.ousmartlocker.model.Locker;
 import com.example.ousmartlocker.model.LockerLocation;
 import com.example.ousmartlocker.services.LockerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/locker")
 public class LockerController {
+    private final LockerService lockerService;
+
     @Autowired
-    private LockerService lockerService;
+    public LockerController(LockerService lockerService) {
+        this.lockerService = lockerService;
+    }
 
     //Thêm locker
     @PostMapping("/add")
@@ -94,6 +100,11 @@ public class LockerController {
         return lockerService.getAllLocker();
     }
 
+    @PostMapping("/register/retry")
+    public OuSmartLockerResp registerRetry(@RequestBody ReRegisterLockerDto reRegisterLockerDto) {
+        return lockerService.registerRetry(reRegisterLockerDto);
+    }
+
     @GetMapping("/all/location")
     public OuSmartLockerResp getAllLocation() {
         return lockerService.getAllLocation();
@@ -107,6 +118,12 @@ public class LockerController {
     @GetMapping("/history/all")
     public OuSmartLockerResp getAllHistory() {
         return lockerService.getAllHistory();
+    }
+
+    @PostMapping("/open-locker")
+    public ResponseEntity<OuSmartLockerResp> openLocker(@RequestBody OpenLockerRequestDto request) {
+        OuSmartLockerResp response = lockerService.verifyAndOpenLocker(request);
+        return new ResponseEntity<>(response, response.getStatus());
     }
 }
 

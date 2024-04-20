@@ -1,7 +1,7 @@
 package com.example.ousmartlocker.controller;
 
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.LoginDto;
+import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.SignUpDto;
 import com.example.ousmartlocker.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final AuthService authService;
+
     @Autowired
-    private AuthService authService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
     public OuSmartLockerResp login(@RequestBody LoginDto loginDto) {
