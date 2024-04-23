@@ -1,9 +1,6 @@
 package com.example.ousmartlocker.services;
 
-import com.example.ousmartlocker.dto.ChangePassDto;
-import com.example.ousmartlocker.dto.EmailInfoRequestDto;
-import com.example.ousmartlocker.dto.ForgotPasswordRequest;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.dto.*;
 
 public interface UserService {
     OuSmartLockerResp getAllUser();
@@ -15,4 +12,6 @@ public interface UserService {
     OuSmartLockerResp forgottenPass(ForgotPasswordRequest request);
 
     OuSmartLockerResp confirm(EmailInfoRequestDto emailInfoRequestDto);
+
+    OuSmartLockerResp updateUserInfo(UpdateUserInfoDto updateUserInfoDto);
 }

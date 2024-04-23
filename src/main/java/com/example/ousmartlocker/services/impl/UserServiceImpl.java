@@ -54,8 +54,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public OuSmartLockerResp addRole(Long id, int role) {
         User user = userRepository.findById(id).orElse(null);
-        if (Objects.isNull(user))
+        if (Objects.isNull(user)) {
             throw new UserNotFoundException("User not found");
+        }
         Role roles;
         switch (role) {
             case 1:
@@ -83,11 +84,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public OuSmartLockerResp changePassword(ChangePassDto changePassDto) {
         String uuid = readToken.getUserId();
-        if (Strings.isBlank(uuid))
+        if (Strings.isBlank(uuid)) {
             throw new TokenInvalidException("Authorized is fail");
+        }
         User user = userRepository.findById(Long.valueOf(uuid)).orElseThrow();
-        if (passwordEncoder.matches(user.getPassword(), changePassDto.getOldPass()))
+        if (passwordEncoder.matches(user.getPassword(), changePassDto.getOldPass())) {
             throw new PasswordInvalidException("Password invalid!!");
+        }
         user.setPassword(passwordEncoder.encode(changePassDto.getNewPass()));
         userRepository.save(user);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Change password success!").build();
@@ -95,11 +98,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public OuSmartLockerResp forgottenPass(ForgotPasswordRequest request) {
-        if (Strings.isBlank(request.getMail()))
+        if (Strings.isBlank(request.getMail())) {
             throw new RequestDataIsNullException("Mail is not valid");
+        }
         User user = userRepository.findByEmail(request.getMail()).orElse(null);
-        if (Objects.isNull(user))
+        if (Objects.isNull(user)) {
             throw new RequestDataIsNullException("Mail is not registered");
+        }
         PassResetOtp otp = generateResetPassOtp(user);
         EmailDetailDto emailDetailDto = EmailDetailDto.builder()
                 .name(user.getName())
@@ -116,8 +121,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public OuSmartLockerResp confirm(EmailInfoRequestDto requestDto) {
         PassResetOtp passResetOtp = passResetOtpRepository.findByOtp(requestDto.getOtp());
-        if (Objects.isNull(passResetOtp))
+        if (Objects.isNull(passResetOtp)) {
             throw new OtpInvalidException("Otp incorrect");
+        }
         SmartLockerUtils.validateExpireTime(passResetOtp.getExpireTime());
         String newPassword = PasswordUtils.generatePassword();
         User user = passResetOtp.getUser();
@@ -135,6 +141,29 @@ public class UserServiceImpl implements UserService {
         passResetOtpRepository.save(passResetOtp);
         emailService.sendNewPassword(passwordDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Confirm success").build();
+    }
+
+    @Override
+    public OuSmartLockerResp updateUserInfo(UpdateUserInfoDto updateUserInfoDto) {
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId)) {
+            throw new TokenInvalidException("Authorized is fail");
+        }
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
+        if (Objects.isNull(user)) {
+            throw new UserNotFoundException("User not found!");
+        }
+        if (!Strings.isBlank(updateUserInfoDto.getPhone())) {
+            user.setPhone(updateUserInfoDto.getPhone());
+        }
+        if (!Strings.isBlank(updateUserInfoDto.getName())) {
+            user.setName(updateUserInfoDto.getName());
+        }
+        if (!Strings.isBlank(updateUserInfoDto.getMail())) {
+            user.setEmail(updateUserInfoDto.getMail());
+        }
+        userRepository.saveAndFlush(user);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Update user info successfully!").data(user).build();
     }
 
     private PassResetOtp generateResetPassOtp(User user) {

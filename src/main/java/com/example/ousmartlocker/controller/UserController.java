@@ -1,9 +1,6 @@
 package com.example.ousmartlocker.controller;
 
-import com.example.ousmartlocker.dto.ChangePassDto;
-import com.example.ousmartlocker.dto.EmailInfoRequestDto;
-import com.example.ousmartlocker.dto.ForgotPasswordRequest;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,6 +46,11 @@ public class UserController {
     @PostMapping("/forgot-password/confirm")
     public OuSmartLockerResp confirmResetPass(@RequestBody EmailInfoRequestDto requestDto) {
         return userService.confirm(requestDto);
+    }
+
+    @PostMapping("/user-info/update")
+    public OuSmartLockerResp updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
+        return userService.updateUserInfo(updateUserInfoDto);
     }
 
     @GetMapping("/datetime")
