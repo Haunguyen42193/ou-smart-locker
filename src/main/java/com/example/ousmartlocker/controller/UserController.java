@@ -53,6 +53,6 @@ public class UserController {
 
     @GetMapping("/datetime")
     public OuSmartLockerResp getLocalDateTime() {
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).data(LocalDateTime.now()).build();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).data(LocalDateTime.now().toString()).build();
     }
 }
