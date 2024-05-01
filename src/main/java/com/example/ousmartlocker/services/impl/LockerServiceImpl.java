@@ -304,7 +304,7 @@ public class LockerServiceImpl implements LockerService {
         EmailDetailDto emailDetailDto = EmailDetailDto.builder()
                 .name(user.getName())
                 .mail(user.getEmail())
-                .otp(history.getOtp().getOtpNumber()).build();
+                .otp(otp.getOtpNumber()).build();
 
         emailService.sendRegisterLockerMail(emailDetailDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
@@ -356,7 +356,7 @@ public class LockerServiceImpl implements LockerService {
         otpRepository.save(otp);
         String msgBody = "Hi " + receiver.getName() + ",\n" +
                 "\n" +
-                "You have an order at " + locationReceive + "\n" +
+                "You have an order at " + locationReceive.getLocation() + "\n" +
                 "\n" +
                 "Please come and take it!\n";
         EmailInfoDto emailInfoDto = EmailInfoDto.builder()
@@ -367,7 +367,7 @@ public class LockerServiceImpl implements LockerService {
 
         String msgBodySender = "Hi " + sender.getName() + ",\n" +
                 "\n" +
-                "Your order shipped to " + locationReceive + "\n";
+                "Your order shipped to " + locationReceive.getLocation() + "\n";
         EmailInfoDto emailInfoDtoSender = EmailInfoDto.builder()
                 .mail(receiver.getEmail())
                 .content(msgBodySender)
