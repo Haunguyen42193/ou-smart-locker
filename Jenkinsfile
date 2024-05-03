@@ -38,15 +38,18 @@ pipeline {
         stage('Deploy on server') {
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'VPS-pwd', keyFileVariable: 'SSH_PRIVATE_KEY', passphraseVariable: '', usernameVariable: 'SSH_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'VPS-pwd', usernameVariable: 'SSH_USERNAME', passwordVariable: 'SSH_PASSWORD')]) {
                         sshagent(['VPS-pwd']) {
-                            sh 'ssh root@14.225.253.41'
-                            sh 'docker ps'
-                            sh 'docker stop smartlocker'
-                            sh 'docker rm smartlocker'
-                            sh 'docker pull haunguyen42195/ou-smart-locker'
-                            sh 'docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker'
-                            sh 'docker ps'
+                            sh '''
+                                sshpass -p "${SSH_PASSWORD}" ssh -o StrictHostKeyChecking=no ${SSH_USERNAME}@14.225.253.41 << 'EOF'
+                                docker ps
+                                docker stop smartlocker
+                                docker rm smartlocker
+                                docker pull haunguyen42195/ou-smart-locker
+                                docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
+                                docker ps
+                                EOF
+                            '''
                         }
                     }
 
