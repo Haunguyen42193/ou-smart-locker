@@ -9,6 +9,8 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Haunguyen42193/ou-smart-locker']])
                 sh 'mvn -v'
                 sh 'mvn clean install'
+                sh 'sudo apt update'
+                sh 'sudo apt install sshpass'
             }
         }
         stage('Run Test') {
