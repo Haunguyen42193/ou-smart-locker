@@ -38,7 +38,7 @@ pipeline {
         stage('Deploy on server') {
             steps {
                 script {
-                    sshagent(['VPS-pwd]) {
+                    sshagent(['VPS-pwd']) {
                         sh 'ssh root@14.225.253.41'
                         sh 'docker ps'
                         sh 'docker stop smartlocker'
