@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'VPS-pwd', usernameVariable: 'SSH_USERNAME', passwordVariable: 'SSH_PASSWORD')]) {
-                        sshagent(['${SSH_PASSWORD}']) {
+                        sshagent(['VPS-pwd']) {
                             sh '''
                                 sshpass -p "${SSH_PASSWORD}" ssh -o StrictHostKeyChecking=no ${SSH_USERNAME}@14.225.253.41 << 'EOF'
                                 docker ps
