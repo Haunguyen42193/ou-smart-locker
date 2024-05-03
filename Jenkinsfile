@@ -45,6 +45,7 @@ pipeline {
                         sh 'docker rm smartlocker'
                         sh 'docker pull haunguyen42195/ou-smart-locker'
                         sh 'docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker'
+                        sh 'docker ps'
                     }
                 }
             }
