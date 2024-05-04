@@ -20,8 +20,8 @@ pipeline {
             steps {
                 script {
                     sh 'sudo usermod -aG docker $USER'
-                    sh 'docker run hello-world'
-                    sh 'docker build -t haunguyen42195/ou-smart-locker .'
+                    sh 'sudo docker run hello-world'
+                    sh 'sudo docker build -t haunguyen42195/ou-smart-locker .'
                 }
             }
         }
@@ -29,9 +29,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        sh "docker login -u haunguyen42195@gmail.com -p ${dockerhubpwd}"
+                        sh "sudo docker login -u haunguyen42195@gmail.com -p ${dockerhubpwd}"
                     }
-                    sh 'docker push haunguyen42195/ou-smart-locker'
+                    sh 'sudo docker push haunguyen42195/ou-smart-locker'
                 }
             }
         }
@@ -39,12 +39,12 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker ps
-                        docker stop smartlocker
-                        docker rm smartlocker
-                        docker pull haunguyen42195/ou-smart-locker
-                        docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
-                        docker ps
+                        sudo docker ps
+                        sudo docker stop smartlocker
+                        sudo docker rm smartlocker
+                        sudo docker pull haunguyen42195/ou-smart-locker
+                        sudo docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
+                        sudo docker ps
                     '''
                 }
             }
