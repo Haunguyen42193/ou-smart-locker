@@ -9,8 +9,6 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Haunguyen42193/ou-smart-locker']])
                 sh 'mvn -v'
                 sh 'mvn clean install'
-                sh 'sudo apt update'
-                sh 'sudo apt install sshpass'
             }
         }
         stage('Run Test') {
@@ -28,11 +26,9 @@ pipeline {
         stage('Push Image To DockerHub') {
             steps {
                 script {
-
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                    sh "docker login -u haunguyen42195@gmail.com -p ${dockerhubpwd}"
+                        sh "docker login -u haunguyen42195@gmail.com -p ${dockerhubpwd}"
                     }
-
                     sh 'docker push haunguyen42195/ou-smart-locker'
                 }
             }
@@ -40,18 +36,14 @@ pipeline {
         stage('Deploy on server') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'vps-pwd', variable: 'vpspwd')]) {
-                        sh '''
-                            sshpass -p "${vpspwd}" ssh -o StrictHostKeyChecking=no root@14.225.253.41 << 'EOF'
-                            docker ps
-                            docker stop smartlocker
-                            docker rm smartlocker
-                            docker pull haunguyen42195/ou-smart-locker
-                            docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
-                            docker ps
-                            EOF
-                        '''
-                    }
+                    sh '''
+                        docker ps
+                        docker stop smartlocker
+                        docker rm smartlocker
+                        docker pull haunguyen42195/ou-smart-locker
+                        docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
+                        docker ps
+                    '''
                 }
             }
         }
