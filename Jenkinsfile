@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        TWILIO_AUTH_TOKEN = credentials('twilio-auth-token')
+    }
     tools {
         maven 'Maven3.9.6'
     }
