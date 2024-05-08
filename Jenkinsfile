@@ -38,6 +38,8 @@ pipeline {
         stage('Deploy on server') {
             steps {
                 script {
+                    def jarFile = sh(returnStdout: true, script: 'find ./ -name "*.jar"').trim()
+                    sh "java -jar -Dtwilio.auth-token=${env.TWILIO_AUTH_TOKEN} ${jarFile}"
                     sh '''
                         sudo docker ps
                         sudo docker stop smartlocker

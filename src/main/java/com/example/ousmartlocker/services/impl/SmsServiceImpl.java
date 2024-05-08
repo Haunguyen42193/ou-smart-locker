@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class SmsServiceImpl implements SmsService {
     @Value("AC185041a00d1d9996a39ca8b6ea96156d")
     private String ACCOUNT_SID;
-    @Value("92a735ea9e21b50bbc09ff9558d6b24d")
+    @Value("${twilio.auth-token}")
     private String AUTH_TOKEN;
 
     public void sendSms(String phone, String content) {
