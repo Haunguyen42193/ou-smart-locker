@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EmailPasswordDto {
+public class SenderDetailDto {
     private String mail;
+    private String phone;
     private String name;
-    private String newPass;
+    private String otp;
 }

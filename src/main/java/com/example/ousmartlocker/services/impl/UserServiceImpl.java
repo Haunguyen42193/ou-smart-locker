@@ -7,7 +7,7 @@ import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.PassResetOtpRepository;
 import com.example.ousmartlocker.repository.UserRepository;
-import com.example.ousmartlocker.services.EmailService;
+import com.example.ousmartlocker.services.SenderService;
 import com.example.ousmartlocker.services.UserService;
 import com.example.ousmartlocker.util.PasswordUtils;
 import com.example.ousmartlocker.util.ReadToken;
@@ -34,15 +34,15 @@ public class UserServiceImpl implements UserService {
 
     private final PassResetOtpRepository passResetOtpRepository;
 
-    private final EmailService emailService;
+    private final SenderService senderService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ReadToken readToken, PasswordEncoder passwordEncoder, PassResetOtpRepository passResetOtpRepository, EmailService emailService) {
+    public UserServiceImpl(UserRepository userRepository, ReadToken readToken, PasswordEncoder passwordEncoder, PassResetOtpRepository passResetOtpRepository, SenderService senderService) {
         this.userRepository = userRepository;
         this.readToken = readToken;
         this.passwordEncoder = passwordEncoder;
         this.passResetOtpRepository = passResetOtpRepository;
-        this.emailService = emailService;
+        this.senderService = senderService;
     }
 
     @Override
@@ -106,12 +106,13 @@ public class UserServiceImpl implements UserService {
             throw new RequestDataIsNullException("Mail is not registered");
         }
         PassResetOtp otp = generateResetPassOtp(user);
-        EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+        SenderDetailDto senderDetailDto = SenderDetailDto.builder()
                 .name(user.getName())
                 .mail(user.getEmail())
+                .phone(user.getPhone())
                 .otp(otp.getOtp())
                 .build();
-        emailService.sendPasswordResetMail(emailDetailDto);
+        senderService.sendPasswordResetMail(senderDetailDto);
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.OK)
                 .message("Request successful")
@@ -131,15 +132,16 @@ public class UserServiceImpl implements UserService {
             throw new OuSmartLockerInternalErrorException("Something wrong. Try again");
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        EmailPasswordDto passwordDto = EmailPasswordDto.builder()
+        SenderPasswordDto passwordDto = SenderPasswordDto.builder()
                 .mail(user.getEmail())
+                .phone(user.getPhone())
                 .name(user.getName())
                 .newPass(newPassword)
                 .build();
         LocalDateTime currentTime = LocalDateTime.now();
         passResetOtp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
         passResetOtpRepository.save(passResetOtp);
-        emailService.sendNewPassword(passwordDto);
+        senderService.sendNewPassword(passwordDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Confirm success").build();
     }
 

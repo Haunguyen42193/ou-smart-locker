@@ -7,8 +7,9 @@ import com.example.ousmartlocker.model.enums.HistoryLocationRole;
 import com.example.ousmartlocker.model.enums.HistoryUserRole;
 import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.*;
-import com.example.ousmartlocker.services.EmailService;
+import com.example.ousmartlocker.services.SenderService;
 import com.example.ousmartlocker.services.LockerService;
+import com.example.ousmartlocker.services.SmsService;
 import com.example.ousmartlocker.util.ReadToken;
 import com.example.ousmartlocker.util.SmartLockerUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -34,11 +35,12 @@ public class LockerServiceImpl implements LockerService {
     private final HistoryUserRepository historyUserRepository;
     private final HistoryLocationRepository historyLocationRepository;
     private final LockerOtpRepository lockerOtpRepository;
-    private final EmailService emailService;
+    private final SenderService senderService;
     private final ReadToken readToken;
+    private final SmsService smsService;
 
     @Autowired
-    public LockerServiceImpl(LockerRepository lockerRepository, UserRepository userRepository, OtpRepository otpRepository, LockerLocationRepository lockerLocationRepository, HistoryRepository historyRepository, HistoryUserRepository historyUserRepository, HistoryLocationRepository historyLocationRepository, LockerOtpRepository lockerOtpRepository, EmailService emailService, ReadToken readToken) {
+    public LockerServiceImpl(LockerRepository lockerRepository, UserRepository userRepository, OtpRepository otpRepository, LockerLocationRepository lockerLocationRepository, HistoryRepository historyRepository, HistoryUserRepository historyUserRepository, HistoryLocationRepository historyLocationRepository, LockerOtpRepository lockerOtpRepository, SenderService senderService, ReadToken readToken, SmsService smsService) {
         this.lockerRepository = lockerRepository;
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
@@ -47,8 +49,9 @@ public class LockerServiceImpl implements LockerService {
         this.historyUserRepository = historyUserRepository;
         this.historyLocationRepository = historyLocationRepository;
         this.lockerOtpRepository = lockerOtpRepository;
-        this.emailService = emailService;
+        this.senderService = senderService;
         this.readToken = readToken;
+        this.smsService = smsService;
     }
 
     @Override
@@ -89,8 +92,8 @@ public class LockerServiceImpl implements LockerService {
         if (availableLockers.isEmpty()) {
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Register locker fail").data("Không còn locker trống hoặc đăng ký không thành công").build();
         } else {
+            SmartLockerUtils.validatePhoneNumber(user.getPhone());
             Locker selectedLocker = randomLocker(availableLockers);
-
 
             Otp otp = this.generateOTP(selectedLocker);
             LocalDateTime currentTime = LocalDateTime.now();
@@ -124,12 +127,13 @@ public class LockerServiceImpl implements LockerService {
             historyUserRepository.save(historySender);
             historyUserRepository.save(historyReceiver);
 
-            EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+            SenderDetailDto senderDetailDto = SenderDetailDto.builder()
                     .name(user.getName())
                     .mail(user.getEmail())
+                    .phone(user.getPhone())
                     .otp(otp.getOtpNumber()).build();
 
-            emailService.sendRegisterLockerMail(emailDetailDto);
+            senderService.sendRegisterLockerMail(senderDetailDto);
 
             RegisterLockerInfoResp resp = RegisterLockerInfoResp.builder()
                     .lockerId(selectedLocker.getLockerId())
@@ -174,7 +178,7 @@ public class LockerServiceImpl implements LockerService {
                     .content(msgBody)
                     .subject("New order").build();
 
-            emailService.sendEmail(emailInfoDto);
+            senderService.sendEmail(emailInfoDto);
         }
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
@@ -204,12 +208,13 @@ public class LockerServiceImpl implements LockerService {
             history.setOtp(otp);
             historyRepository.save(history);
             lockerRepository.save(locker);
-            EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+            SenderDetailDto senderDetailDto = SenderDetailDto.builder()
                     .name(user.getName())
                     .mail(user.getEmail())
+                    .phone(user.getPhone())
                     .otp(history.getOtp().getOtpNumber()).build();
 
-            emailService.sendRegisterLockerMail(emailDetailDto);
+            senderService.sendRegisterLockerMail(senderDetailDto);
 
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Re-register locker successful").data("Đăng ký locker thành công").build();
         }
@@ -241,8 +246,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(sender.getEmail())
                 .content(msgBody)
                 .subject("Order shipped").build();
-        emailService.sendEmail(emailInfoDto);
-
+        senderService.sendEmail(emailInfoDto);
+        smsService.sendSms(sender.getPhone(), msgBody);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -286,11 +291,11 @@ public class LockerServiceImpl implements LockerService {
                 .startTime(startTime)
                 .build();
 
-        for (HistoryLocation historyLocation: historyLocationsNew) {
+        for (HistoryLocation historyLocation : historyLocationsNew) {
             historyLocation.setHistory(historySend);
         }
 
-        for (HistoryUser historyUser: historyUsers) {
+        for (HistoryUser historyUser : historyUsers) {
             historyUser.setHistory(historySend);
         }
         historySend.setUsers(historyUsers);
@@ -301,12 +306,13 @@ public class LockerServiceImpl implements LockerService {
         history.setOnProcedure(historySend.getHistoryId());
         historyRepository.save(history);
 
-        EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+        SenderDetailDto senderDetailDto = SenderDetailDto.builder()
                 .name(user.getName())
                 .mail(user.getEmail())
+                .phone(user.getPhone())
                 .otp(otp.getOtpNumber()).build();
 
-        emailService.sendRegisterLockerMail(emailDetailDto);
+        senderService.sendRegisterLockerMail(senderDetailDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -334,6 +340,7 @@ public class LockerServiceImpl implements LockerService {
                 .build();
     }
 
+    @Override
     public OuSmartLockerResp confirmShipperRegisterSendLocker(Long historyId) {
         LocalDateTime currentTime = LocalDateTime.now();
         History history = historyRepository.findById(historyId).orElse(null);
@@ -363,8 +370,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(receiver.getEmail())
                 .content(msgBody)
                 .subject("New order").build();
-        emailService.sendEmail(emailInfoDto);
-
+        senderService.sendEmail(emailInfoDto);
+        smsService.sendSms(receiver.getPhone(), msgBody);
         String msgBodySender = "Hi " + sender.getName() + ",\n" +
                 "\n" +
                 "Your order shipped to " + locationReceive.getLocation() + "\n";
@@ -372,8 +379,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(receiver.getEmail())
                 .content(msgBodySender)
                 .subject("Ship success").build();
-        emailService.sendEmail(emailInfoDtoSender);
-
+        senderService.sendEmail(emailInfoDtoSender);
+        smsService.sendSms(sender.getPhone(), msgBodySender);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -391,12 +398,13 @@ public class LockerServiceImpl implements LockerService {
         history.setOtp(otp);
         historyRepository.save(history);
 
-        EmailDetailDto emailDetailDto = EmailDetailDto.builder()
+        SenderDetailDto senderDetailDto = SenderDetailDto.builder()
                 .name(user.getName())
                 .mail(user.getEmail())
+                .phone(user.getPhone())
                 .otp(history.getOtp().getOtpNumber()).build();
 
-        emailService.sendRegisterLockerMail(emailDetailDto);
+        senderService.sendRegisterLockerMail(senderDetailDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
     }
 
@@ -427,8 +435,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(receiver.getEmail())
                 .content(msgBody)
                 .subject("New order").build();
-        emailService.sendEmail(emailInfoDto);
-
+        senderService.sendEmail(emailInfoDto);
+        smsService.sendSms(sender.getPhone(), msgBody);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
     }
 
@@ -461,7 +469,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(sender.getEmail())
                 .content(msgBody)
                 .subject("Order confirmed").build();
-        emailService.sendEmail(emailInfoDto);
+        senderService.sendEmail(emailInfoDto);
+        smsService.sendSms(sender.getPhone(), msgBody);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
     }
 
@@ -471,7 +480,7 @@ public class LockerServiceImpl implements LockerService {
         if (otps.isEmpty())
             throw new OtpInvalidException("Not found otp");
         Otp otpRequest = null;
-        for (Otp otp: otps) {
+        for (Otp otp : otps) {
             SmartLockerUtils.validateExpireTime(otp.getExpireTime());
             otpRequest = otp;
             if (!Objects.isNull(otpRequest))
@@ -533,7 +542,8 @@ public class LockerServiceImpl implements LockerService {
                 .mail(user.getEmail())
                 .content(msgBody)
                 .subject("New order").build();
-        emailService.sendEmail(emailInfoDto);
+        senderService.sendEmail(emailInfoDto);
+        smsService.sendSms(user.getPhone(), msgBody);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(otpNew).build();
     }
 
