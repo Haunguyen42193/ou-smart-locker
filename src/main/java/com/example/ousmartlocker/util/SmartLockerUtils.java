@@ -1,6 +1,7 @@
 package com.example.ousmartlocker.util;
 
 import com.example.ousmartlocker.exception.OtpInvalidException;
+import com.example.ousmartlocker.exception.SmsInvalidException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,5 +24,19 @@ public class SmartLockerUtils {
         LocalDateTime currentTime = LocalDateTime.now();
         if (expireTime.isBefore(currentTime))
             throw new OtpInvalidException("Expired time");
+    }
+
+    public static String formatPhoneNumber(String phone) {
+        if (phone.length() == 10 && phone.matches("\\d+") && phone.startsWith("0")) {
+            return "+84" + phone.substring(1);
+        } else {
+            throw new SmsInvalidException("Sms is invalid");
+        }
+    }
+
+    public static void validatePhoneNumber(String phoneNumber) {
+        if (!phoneNumber.startsWith("+84") || phoneNumber.length() != 12 || !phoneNumber.substring(3).matches("\\d+")) {
+            throw new SmsInvalidException("Sms is invalid");
+        }
     }
 }

@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(signUpDto.getEmail())
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword().trim()))
-                .phone(signUpDto.getPhone())
+                .phone(SmartLockerUtils.formatPhoneNumber(signUpDto.getPhone()))
                 .roles(Collections.singletonList(Role.ROLE_USER))
                 .build();
     }
