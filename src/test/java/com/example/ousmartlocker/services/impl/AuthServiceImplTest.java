@@ -102,7 +102,7 @@ class AuthServiceImplTest {
         signUpDto.setUsername("ha12");
         signUpDto.setEmail("email@gmail.com");
         signUpDto.setPassword("12345Aa@");
-        signUpDto.setPhone("1234567890");
+        signUpDto.setPhone("0987654321");
         // Mocking userRepository.existsByUsername() and userRepository.existsByEmail() to return false
         Mockito.when(userRepository.existsByUsername(signUpDto.getUsername())).thenReturn(false);
         Mockito.when(userRepository.existsByEmail(signUpDto.getEmail())).thenReturn(false);
@@ -140,7 +140,7 @@ class AuthServiceImplTest {
         signUpDto.setUsername("ha12");
         signUpDto.setEmail("email@gmail.com");
         signUpDto.setPassword("12345Aa@");
-        signUpDto.setPhone("1234567890");
+        signUpDto.setPhone("0987654321");
         // Mocking userRepository.existsByUsername() and userRepository.existsByEmail() to return false
         Mockito.when(userRepository.existsByUsername(signUpDto.getUsername())).thenReturn(false);
         Mockito.when(userRepository.existsByEmail(signUpDto.getEmail())).thenReturn(false);
