@@ -1,11 +1,11 @@
 pipeline {
     agent any
     environment {
-        TWILIO_AUTH_TOKEN = credentials('twilio-auth-token'),
-        DB_PASSWORD = credentials('db-password'),
-        SERVER_HOST = credentials('server-host'),
+        TWILIO_AUTH_TOKEN = credentials('twilio-auth-token')
+        DB_PASSWORD = credentials('db-password')
+        SERVER_HOST = credentials('server-host')
         KEYSTORE_PASS = credentials('keystore-pass')
-        MAIL_PASS = credentials('mail-pass'),
+        MAIL_PASS = credentials('mail-pass')
         JWT_SECRET = credentials('jwt-secret')
     }
     tools {
