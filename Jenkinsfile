@@ -1,7 +1,12 @@
 pipeline {
     agent any
     environment {
-        TWILIO_AUTH_TOKEN = credentials('twilio-auth-token')
+        TWILIO_AUTH_TOKEN = credentials('twilio-auth-token'),
+        DB_PASSWORD = credentials('db-password'),
+        SERVER_HOST = credentials('server-host'),
+        KEYSTORE_PASS = credentials('keystore-pass')
+        MAIL_PASS = credentials('mail-pass'),
+        JWT_SECRET = credentials('jwt-secret')
     }
     tools {
         maven 'Maven3.9.6'
@@ -41,8 +46,6 @@ pipeline {
         stage('Deploy on server') {
             steps {
                 script {
-                    def jarFile = sh(returnStdout: true, script: 'find ./ -name "*.jar"').trim()
-                    sh "java -jar -Dtwilio.auth-token=${env.TWILIO_AUTH_TOKEN} ${jarFile}"
                     sh '''
                         sudo docker ps
                         sudo docker stop smartlocker
