@@ -51,7 +51,7 @@ pipeline {
                         sudo docker stop smartlocker
                         sudo docker rm smartlocker
                         sudo docker pull haunguyen42195/ou-smart-locker
-                        sudo docker run -d -p 8081:8081 --name smartlocker --restart unless-stopped -e "TZ=Asia/Ho_Chi_Minh" haunguyen42195/ou-smart-locker
+                        sudo docker-compose up
                         sudo docker ps
                     '''
                 }
