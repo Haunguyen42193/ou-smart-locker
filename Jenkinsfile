@@ -51,6 +51,8 @@ pipeline {
                         sudo docker stop smartlocker
                         sudo docker rm smartlocker
                         sudo docker pull haunguyen42195/ou-smart-locker
+                        sudo apt install docker-compose
+                        ls
                         sudo docker-compose up
                         sudo docker ps
                     '''
