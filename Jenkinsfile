@@ -53,7 +53,7 @@ pipeline {
                         sudo docker pull haunguyen42195/ou-smart-locker
                         sudo apt install docker-compose
                         ls
-                        sudo docker-compose up
+                        sudo docker-compose -f root/docker-compose.yml up -d
                         sudo docker ps
                     '''
                 }
