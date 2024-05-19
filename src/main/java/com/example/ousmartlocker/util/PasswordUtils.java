@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class PasswordUtils {
 
-    private static final int PASSWORD_LENGTH = 8; // Độ dài của mật khẩu
+    private static final int PASSWORD_LENGTH = 8;
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
     private static final String NUMBER = "0123456789";

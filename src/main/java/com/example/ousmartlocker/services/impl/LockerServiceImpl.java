@@ -506,10 +506,9 @@ public class LockerServiceImpl implements LockerService {
         }
 
         Locker locker = lockerOtp.getLocker();
-        locker.setIsOccupied(false); // Mark the locker as not occupied anymore
+        locker.setIsOccupied(false);
         lockerRepository.save(locker);
 
-        // Here would be the integration point for the actual locker hardware interaction logic
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.OK)
                 .message("Locker opened successfully")
@@ -608,11 +607,6 @@ public class LockerServiceImpl implements LockerService {
         lockerOtpRepository.save(lockerOtp);
 
         return otpInfo;
-    }
-
-    private boolean isOtpExpired(Otp otp) {
-        LocalDateTime expiryTime = LocalDateTime.parse(otp.getExpireTime(), SmartLockerUtils.formatter);
-        return LocalDateTime.now().isAfter(expiryTime);
     }
 
     private Locker randomLocker(List<Locker> availableLockers) {
