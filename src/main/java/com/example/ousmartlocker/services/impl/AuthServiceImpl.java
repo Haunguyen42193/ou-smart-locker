@@ -2,8 +2,10 @@ package com.example.ousmartlocker.services.impl;
 
 import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.*;
+import com.example.ousmartlocker.model.LoginRecord;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.model.enums.Role;
+import com.example.ousmartlocker.repository.LoginRecordRepository;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.security.JwtTokenProvider;
 import com.example.ousmartlocker.services.AuthService;
@@ -20,6 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -33,17 +36,21 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final LoginRecordRepository loginRecordRepository;
+
+
     @Autowired
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserRepository userRepository,
             JwtTokenProvider tokenProvider,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder,
+            LoginRecordRepository loginRecordRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenProvider = tokenProvider;
         this.passwordEncoder = passwordEncoder;
+        this.loginRecordRepository = loginRecordRepository;
     }
 
     @Value("${app.jwt-expiration-milliseconds}")
@@ -64,6 +71,8 @@ public class AuthServiceImpl implements AuthService {
             }
             String token = tokenProvider.generateToken(authentication);
             AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ConvertData.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
+            LoginRecord loginRecord = LoginRecord.builder().username(user.getUsername()).loginTime(LocalDateTime.now()).build();
+            loginRecordRepository.save(loginRecord);
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Sucessfully logged in").data(responseModel).build();
         } catch (AuthenticationException ex) {
             throw new OuSmartLockerBadRequestApiException("Username or password are incorrect", ex.getCause());

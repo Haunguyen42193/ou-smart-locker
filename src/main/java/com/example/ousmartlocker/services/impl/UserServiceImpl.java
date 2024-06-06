@@ -5,6 +5,7 @@ import com.example.ousmartlocker.exception.*;
 import com.example.ousmartlocker.model.PassResetOtp;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.model.enums.Role;
+import com.example.ousmartlocker.repository.LoginRecordRepository;
 import com.example.ousmartlocker.repository.PassResetOtpRepository;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.services.SenderService;
@@ -36,13 +37,16 @@ public class UserServiceImpl implements UserService {
 
     private final SenderService senderService;
 
+    private final LoginRecordRepository loginRecordRepository;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ReadToken readToken, PasswordEncoder passwordEncoder, PassResetOtpRepository passResetOtpRepository, SenderService senderService) {
+    public UserServiceImpl(UserRepository userRepository, ReadToken readToken, PasswordEncoder passwordEncoder, PassResetOtpRepository passResetOtpRepository, SenderService senderService, LoginRecordRepository loginRecordRepository) {
         this.userRepository = userRepository;
         this.readToken = readToken;
         this.passwordEncoder = passwordEncoder;
         this.passResetOtpRepository = passResetOtpRepository;
         this.senderService = senderService;
+        this.loginRecordRepository = loginRecordRepository;
     }
 
     @Override
@@ -166,6 +170,22 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.saveAndFlush(user);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Update user info successfully!").data(user).build();
+    }
+
+    @Override
+    public OuSmartLockerResp getRecordLogin(String startDate, String endDate) {
+        if (Strings.isBlank(startDate)) {
+            throw new InvalidTimeException("Start time is invalid");
+        }
+        LocalDateTime end;
+        if (Strings.isBlank(endDate)) {
+            end = LocalDateTime.now();
+        } else {
+            end = LocalDateTime.parse(startDate, SmartLockerUtils.timeFormatter);
+        }
+        LocalDateTime start = LocalDateTime.parse(startDate, SmartLockerUtils.timeFormatter);
+        long loginRecord = loginRecordRepository.countLoginRecordsBetween(start, end);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).data(loginRecord).message("Get success").build();
     }
 
     private PassResetOtp generateResetPassOtp(User user) {
