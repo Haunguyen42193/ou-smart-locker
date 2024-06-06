@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class SmartLockerUtils {
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     public static boolean validateEmail(String email) {
         String regexPattern = "^(.+)@(\\S+)$";

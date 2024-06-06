@@ -57,4 +57,11 @@ public class UserController {
     public OuSmartLockerResp getLocalDateTime() {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).data(LocalDateTime.now().toString()).build();
     }
+
+
+    @GetMapping("/record")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp getRecordLogin(@RequestParam String startDate, @RequestParam String endDate) {
+        return userService.getRecordLogin(startDate, endDate);
+    }
 }

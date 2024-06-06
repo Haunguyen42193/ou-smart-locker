@@ -14,4 +14,7 @@ public interface UserService {
     OuSmartLockerResp confirm(EmailInfoRequestDto emailInfoRequestDto);
 
     OuSmartLockerResp updateUserInfo(UpdateUserInfoDto updateUserInfoDto);
+
+    OuSmartLockerResp getRecordLogin(String startDate, String endDate);
+
 }
