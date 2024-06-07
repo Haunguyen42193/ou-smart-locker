@@ -7,7 +7,6 @@ pipeline {
         KEYSTORE_PASS = credentials('keystore-pass')
         MAIL_PASS = credentials('mail-pass')
         JWT_SECRET = credentials('jwt-secret')
-        SUDO = credentials('sudo')
     }
     tools {
         maven 'Maven3.9.6'
@@ -28,7 +27,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    sh "echo '${SUDO}' | sudo -S usermod -aG docker $USER"
+                    sh 'sudo usermod -aG docker $USER'
                     sh 'sudo docker run hello-world'
                     sh 'sudo docker build -t haunguyen42195/ou-smart-locker .'
                 }
