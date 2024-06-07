@@ -8,6 +8,7 @@ import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
 import com.example.ousmartlocker.exception.UsernamePasswordInvalid;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.repository.UserRepository;
+import com.example.ousmartlocker.repository.LoginRecordRepository;
 import com.example.ousmartlocker.security.JwtTokenProvider;
 import com.example.ousmartlocker.util.ConvertDataUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
