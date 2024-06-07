@@ -40,6 +40,9 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private LoginRecordRepository loginRecordRepository;
+
     @Test
     void authenticate() throws JsonProcessingException {
         User user = ConvertDataUtil.convertDataToObject(AuthServiceTestData.mockUserData, User.class);
@@ -52,6 +55,7 @@ class AuthServiceImplTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), loginDto.getPassword());
         Mockito.when(authenticationManager.authenticate(Mockito.any())).thenReturn(authentication);
         Mockito.when(tokenProvider.generateToken(authentication)).thenReturn(token);
+        Mockito.when(loginRecordRepository.save(Mockito.any()).thenReturn(null);
         OuSmartLockerResp resp = authService.authenticate(loginDto);
         Assertions.assertNotNull(resp);
         Assertions.assertEquals(HttpStatus.OK, resp.getStatus());
