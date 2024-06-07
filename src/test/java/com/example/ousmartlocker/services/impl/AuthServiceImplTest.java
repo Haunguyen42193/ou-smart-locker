@@ -55,7 +55,7 @@ class AuthServiceImplTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), loginDto.getPassword());
         Mockito.when(authenticationManager.authenticate(Mockito.any())).thenReturn(authentication);
         Mockito.when(tokenProvider.generateToken(authentication)).thenReturn(token);
-        Mockito.when(loginRecordRepository.save(Mockito.any()).thenReturn(null);
+        Mockito.when(loginRecordRepository.save(Mockito.any())).thenReturn(null);
         OuSmartLockerResp resp = authService.authenticate(loginDto);
         Assertions.assertNotNull(resp);
         Assertions.assertEquals(HttpStatus.OK, resp.getStatus());
