@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                    
-                    sh 'sudo docker run hello-world'
+                    sh 'docker run hello-world'
                     sh 'sudo docker build -t haunguyen42195/ou-smart-locker .'
                 }
             }
