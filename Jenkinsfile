@@ -27,7 +27,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    sh 'sudo usermod -aG docker $USER'
+                   
                     sh 'sudo docker run hello-world'
                     sh 'sudo docker build -t haunguyen42195/ou-smart-locker .'
                 }
