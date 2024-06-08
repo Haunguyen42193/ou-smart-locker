@@ -1,7 +1,24 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.dto.*;
-import com.example.ousmartlocker.exception.*;
+import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.dto.UserDto;
+import com.example.ousmartlocker.dto.ConvertData;
+import com.example.ousmartlocker.dto.ChangePassDto;
+import com.example.ousmartlocker.dto.ForgotPasswordRequest;
+import com.example.ousmartlocker.dto.SenderDetailDto;
+import com.example.ousmartlocker.dto.EmailInfoRequestDto;
+import com.example.ousmartlocker.dto.SenderPasswordDto;
+import com.example.ousmartlocker.dto.UpdateUserInfoDto;
+import com.example.ousmartlocker.dto.LoginRecordDto;
+import com.example.ousmartlocker.dto.LoginRecordUserDto;
+import com.example.ousmartlocker.exception.UserNotFoundException;
+import com.example.ousmartlocker.exception.RoleAlreadyExistsException;
+import com.example.ousmartlocker.exception.TokenInvalidException;
+import com.example.ousmartlocker.exception.PasswordInvalidException;
+import com.example.ousmartlocker.exception.RequestDataIsNullException;
+import com.example.ousmartlocker.exception.OtpInvalidException;
+import com.example.ousmartlocker.exception.OuSmartLockerInternalErrorException;
+import com.example.ousmartlocker.exception.InvalidTimeException;
 import com.example.ousmartlocker.model.PassResetOtp;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.model.enums.Role;
@@ -20,7 +37,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -177,15 +197,23 @@ public class UserServiceImpl implements UserService {
         if (Strings.isBlank(startDate)) {
             throw new InvalidTimeException("Start time is invalid");
         }
-        LocalDateTime end;
+        LocalDate end;
+        Date dateTimeEnd;
         if (Strings.isBlank(endDate)) {
-            end = LocalDateTime.now();
+            end = LocalDate.now();
+            dateTimeEnd = Timestamp.valueOf(end.atStartOfDay());
         } else {
-            end = LocalDateTime.parse(startDate, SmartLockerUtils.timeFormatter);
+            end = LocalDate.parse(endDate, SmartLockerUtils.timeFormatter);
+            dateTimeEnd = Timestamp.valueOf(end.atStartOfDay());
         }
-        LocalDateTime start = LocalDateTime.parse(startDate, SmartLockerUtils.timeFormatter);
-        long loginRecord = loginRecordRepository.countLoginRecordsBetween(start, end);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).data(loginRecord).message("Get success").build();
+        LocalDate start = LocalDate.parse(startDate, SmartLockerUtils.timeFormatter);
+        Date dateTimeStart = Timestamp.valueOf(start.atStartOfDay());
+        LoginRecordDto loginRecordDto = new LoginRecordDto();
+        long loginRecord = loginRecordRepository.countLoginRecordsBetween(dateTimeStart, dateTimeEnd);
+        loginRecordDto.setRecord(loginRecord);
+        List<LoginRecordUserDto> loginRecordUserDtos = loginRecordRepository.countLoginsByUsername(dateTimeStart, dateTimeEnd);
+        loginRecordDto.setLoginRecordUserDtos(loginRecordUserDtos);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).data(loginRecordDto).message("Get success").build();
     }
 
     private PassResetOtp generateResetPassOtp(User user) {
