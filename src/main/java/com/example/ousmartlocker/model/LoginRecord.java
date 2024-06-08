@@ -5,8 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -21,7 +20,7 @@ public class LoginRecord {
 
     private String username;
 
-    private LocalDateTime loginTime;
+    private Date loginTime;
 
     // Getters and setters
 }

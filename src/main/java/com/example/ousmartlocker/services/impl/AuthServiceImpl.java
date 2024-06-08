@@ -1,7 +1,16 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.dto.*;
-import com.example.ousmartlocker.exception.*;
+import com.example.ousmartlocker.dto.LoginDto;
+import com.example.ousmartlocker.dto.ConvertData;
+import com.example.ousmartlocker.dto.SignUpDto;
+import com.example.ousmartlocker.dto.AuthResponseDto;
+import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.exception.UsernamePasswordInvalid;
+import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
+import com.example.ousmartlocker.exception.RequestDataIsNullException;
+import com.example.ousmartlocker.exception.UserAlreadyExistsException;
+import com.example.ousmartlocker.exception.PasswordInvalidException;
+import com.example.ousmartlocker.exception.EmailInvalidException;
 import com.example.ousmartlocker.model.LoginRecord;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.model.enums.Role;
@@ -22,6 +31,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
@@ -71,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
             }
             String token = tokenProvider.generateToken(authentication);
             AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ConvertData.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
-            LoginRecord loginRecord = LoginRecord.builder().username(user.getUsername()).loginTime(LocalDateTime.now()).build();
+            LoginRecord loginRecord = LoginRecord.builder().username(user.getUsername()).loginTime(Timestamp.valueOf(LocalDateTime.now())).build();
             loginRecordRepository.save(loginRecord);
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Sucessfully logged in").data(responseModel).build();
         } catch (AuthenticationException ex) {
