@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -20,5 +22,7 @@ public class Locker {
     private Boolean isOccupied;
     @ManyToOne
     private LockerLocation lockerLocation;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "locker")
+    private List<LockerUsingRecord> lockerUsingRecords;
 }
 

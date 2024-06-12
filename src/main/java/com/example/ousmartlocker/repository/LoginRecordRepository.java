@@ -16,6 +16,6 @@ public interface LoginRecordRepository extends JpaRepository<LoginRecord, Long> 
     @Query("SELECT COUNT(lr) FROM LoginRecord lr WHERE lr.loginTime >= ?1 AND lr.loginTime <= ?2")
     long countLoginRecordsBetween(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
-    @Query("SELECT new com.example.ousmartlocker.dto.LoginRecordUserDto(lr.username, COUNT(lr)) FROM LoginRecord lr WHERE lr.loginTime >= ?1 AND lr.loginTime <= ?2 GROUP BY lr.username")
+    @Query("SELECT new com.example.ousmartlocker.dto.LoginRecordUserDto(lr.user.username, COUNT(lr)) FROM LoginRecord lr WHERE lr.loginTime >= ?1 AND lr.loginTime <= ?2 GROUP BY lr.user")
     List<LoginRecordUserDto> countLoginsByUsername(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 }

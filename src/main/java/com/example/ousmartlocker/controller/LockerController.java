@@ -1,11 +1,7 @@
 package com.example.ousmartlocker.controller;
 
-import com.example.ousmartlocker.dto.OpenLockerRequestDto;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
-import com.example.ousmartlocker.dto.ReRegisterLockerDto;
-import com.example.ousmartlocker.dto.RegisterLockerDto;
+import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.model.Locker;
-import com.example.ousmartlocker.model.LockerLocation;
 import com.example.ousmartlocker.services.LockerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +23,6 @@ public class LockerController {
     @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp addLocker(@RequestBody Locker locker) {
         return lockerService.addLocker(locker);
-    }
-
-    //Thêm địa điểm
-    @PostMapping("/location/add")
-    @PreAuthorize("hasRole('ADMIN')")
-    public OuSmartLockerResp addLockerLocation(@RequestBody LockerLocation lockerLocation) {
-        return lockerService.addLockerLocation(lockerLocation);
     }
 
     //Đăng ký locker
@@ -95,7 +84,7 @@ public class LockerController {
         return lockerService.confirmReceiverRegisterSendLocker(historyId);
     }
 
-    @GetMapping("/all/locker")
+    @GetMapping("/all")
     public OuSmartLockerResp getAllLocker() {
         return lockerService.getAllLocker();
     }
@@ -105,31 +94,22 @@ public class LockerController {
         return lockerService.registerRetry(reRegisterLockerDto);
     }
 
-    @GetMapping("/all/location")
-    public OuSmartLockerResp getAllLocation() {
-        return lockerService.getAllLocation();
-    }
-
-    @GetMapping("/history/{historyId}")
-    public OuSmartLockerResp getHistoryById(@PathVariable Long historyId) {
-        return lockerService.getHistoryById(historyId);
-    }
-
-    @GetMapping("/history/all")
-    public OuSmartLockerResp getAllHistory() {
-        return lockerService.getAllHistory();
-    }
-
     @PostMapping("/open-locker")
     public ResponseEntity<OuSmartLockerResp> openLocker(@RequestBody OpenLockerRequestDto request) {
         OuSmartLockerResp response = lockerService.verifyAndOpenLocker(request);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    @GetMapping("/history/record")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public OuSmartLockerResp getHistoryRecord(@RequestParam String startDate, @RequestParam String endDate) {
-        return lockerService.getHistoryRecord(startDate, endDate);
+    public OuSmartLockerResp deleteLocker(@PathVariable("id") long id) {
+        return lockerService.deleteLocker(id);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp updateLocker(@PathVariable("id") long id, @RequestBody LockerDto dto) {
+        return lockerService.updateLocker(id, dto);
     }
 }
 

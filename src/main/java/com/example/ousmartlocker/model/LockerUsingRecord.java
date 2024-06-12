@@ -2,6 +2,8 @@ package com.example.ousmartlocker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -10,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginRecord {
+public class LockerUsingRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,5 +21,8 @@ public class LoginRecord {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Date loginTime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locker_id")
+    private Locker locker;
+    private Date date;
 }

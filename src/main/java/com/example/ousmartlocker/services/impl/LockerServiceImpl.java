@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,10 @@ public class LockerServiceImpl implements LockerService {
     private final SenderService senderService;
     private final ReadToken readToken;
     private final SmsService smsService;
+    private final LockerUsingRecordRepository lockerUsingRecordRepository;
 
     @Autowired
-    public LockerServiceImpl(LockerRepository lockerRepository, UserRepository userRepository, OtpRepository otpRepository, LockerLocationRepository lockerLocationRepository, HistoryRepository historyRepository, HistoryUserRepository historyUserRepository, HistoryLocationRepository historyLocationRepository, LockerOtpRepository lockerOtpRepository, SenderService senderService, ReadToken readToken, SmsService smsService) {
+    public LockerServiceImpl(LockerRepository lockerRepository, UserRepository userRepository, OtpRepository otpRepository, LockerLocationRepository lockerLocationRepository, HistoryRepository historyRepository, HistoryUserRepository historyUserRepository, HistoryLocationRepository historyLocationRepository, LockerOtpRepository lockerOtpRepository, SenderService senderService, ReadToken readToken, SmsService smsService, LockerUsingRecordRepository lockerUsingRecordRepository) {
         this.lockerRepository = lockerRepository;
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
@@ -52,6 +54,7 @@ public class LockerServiceImpl implements LockerService {
         this.senderService = senderService;
         this.readToken = readToken;
         this.smsService = smsService;
+        this.lockerUsingRecordRepository = lockerUsingRecordRepository;
     }
 
     @Override
@@ -63,11 +66,6 @@ public class LockerServiceImpl implements LockerService {
     @Override
     public OuSmartLockerResp getAllLocker() {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerRepository.findAll()).build();
-    }
-
-    @Override
-    public OuSmartLockerResp getAllLocation() {
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerLocationRepository.findAll()).build();
     }
 
     @Override
@@ -148,6 +146,10 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp confirmSenderRegisterLocker(Long historyId) {
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId))
+            throw new TokenInvalidException("Authorized is fail");
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
         History history = historyRepository.findById(historyId).orElse(null);
         assert history != null;
         List<HistoryLocation> historyLocations = history.getLocation();
@@ -167,6 +169,7 @@ public class LockerServiceImpl implements LockerService {
             throw new OuSmartLockerInternalErrorException("Something wrong happen");
         List<User> users = userRepository.findAll();
         List<User> shippers = users.stream().filter(u -> u.getRoles().contains(Role.ROLE_SHIPPER)).toList();
+        saveLockerUsingRecord(user, history.getLocker());
         for (User shipper : shippers) {
             String msgBody = "Hi " + shipper.getName() + ",\n" +
                     "\n" +
@@ -222,6 +225,10 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp confirmShipperRegisterLocker(Long historyId) {
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId))
+            throw new TokenInvalidException("Authorized is fail");
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
         History history = historyRepository.findById(historyId).orElse(null);
 
         assert history != null;
@@ -238,6 +245,8 @@ public class LockerServiceImpl implements LockerService {
         Locker locker = history.getLocker();
         locker.setIsOccupied(false);
         lockerRepository.save(locker);
+
+        saveLockerUsingRecord(user, history.getLocker());
 
         String msgBody = "Hi " + sender.getName() + ",\n" +
                 "\n" +
@@ -342,6 +351,10 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp confirmShipperRegisterSendLocker(Long historyId) {
+        String userId = readToken.getUserId();
+        if (Strings.isBlank(userId))
+            throw new TokenInvalidException("Authorized is fail");
+        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
         LocalDateTime currentTime = LocalDateTime.now();
         History history = historyRepository.findById(historyId).orElse(null);
         assert history != null;
@@ -361,6 +374,9 @@ public class LockerServiceImpl implements LockerService {
         Otp otp = history.getOtp();
         otp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
         otpRepository.save(otp);
+
+        saveLockerUsingRecord(user, history.getLocker());
+
         String msgBody = "Hi " + receiver.getName() + ",\n" +
                 "\n" +
                 "You have an order at " + locationReceive.getLocation() + "\n" +
@@ -371,7 +387,6 @@ public class LockerServiceImpl implements LockerService {
                 .content(msgBody)
                 .subject("New order").build();
         senderService.sendEmail(emailInfoDto);
-        smsService.sendSms(receiver.getPhone(), msgBody);
         String msgBodySender = "Hi " + sender.getName() + ",\n" +
                 "\n" +
                 "Your order shipped to " + locationReceive.getLocation() + "\n";
@@ -380,7 +395,6 @@ public class LockerServiceImpl implements LockerService {
                 .content(msgBodySender)
                 .subject("Ship success").build();
         senderService.sendEmail(emailInfoDtoSender);
-        smsService.sendSms(sender.getPhone(), msgBodySender);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
     }
 
@@ -428,6 +442,9 @@ public class LockerServiceImpl implements LockerService {
         Otp otp = history.getOtp();
         otp.setExpireTime(SmartLockerUtils.formatter.format(currentTime));
         otpRepository.save(otp);
+
+        saveLockerUsingRecord(receiver, history.getLocker());
+
         String msgBody = "Hi " + sender.getName() + ",\n" +
                 "\n" +
                 "Your order had been sent to " + receiver.getName() + "\n";
@@ -438,13 +455,6 @@ public class LockerServiceImpl implements LockerService {
         senderService.sendEmail(emailInfoDto);
         smsService.sendSms(sender.getPhone(), msgBody);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").build();
-    }
-
-    @Override
-    public OuSmartLockerResp getAllHistory() {
-        List<History> histories = historyRepository.findAll();
-        List<HistoryDto> historyDtos = histories.stream().map(this::mapHistoryToDto).toList();
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDtos).build();
     }
 
     @Override
@@ -547,49 +557,31 @@ public class LockerServiceImpl implements LockerService {
     }
 
     @Override
-    public OuSmartLockerResp getHistoryRecord(String startDate, String endDate) {
-        return null;
+    public OuSmartLockerResp deleteLocker(long id) {
+        Locker locker = lockerRepository.findById(id)
+                .orElseThrow(() -> new LockerNotFoundException("Locker not found"));
+        lockerRepository.delete(locker);
+        return OuSmartLockerResp.builder().status(HttpStatus.NO_CONTENT).message("Success").data(null).build();
     }
 
     @Override
-    public OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation) {
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerLocationRepository.save(lockerLocation)).build();
-    }
-
-
-    @Override
-    public OuSmartLockerResp getHistoryById(Long historyId) {
-        History history = historyRepository.findById(historyId).orElse(null);
-        if (Objects.isNull(history))
-            throw new HistoryNotFoundException("Not found history");
-        HistoryDto historyDto = mapHistoryToDto(history);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
-    }
-
-    private HistoryDto mapHistoryToDto(History history) {
-        return HistoryDto.builder()
-                .historyId(history.getHistoryId())
-                .locker(history.getLocker())
-                .endTime(history.getEndTime())
-                .startTime(history.getStartTime())
-                .location(history.getLocation().stream().map(this::mapHistoryLocationToDto).toList())
-                .users(history.getUsers().stream().map(this::mapHistoryUserToDto).toList())
-                .otp(history.getOtp())
-                .onProcedure(history.getOnProcedure())
+    public OuSmartLockerResp updateLocker(long id, LockerDto dto) {
+        Locker locker = lockerRepository.findById(id)
+                .orElseThrow(() -> new LockerNotFoundException("Locker not found"));
+        locker.setIsOccupied(dto.getIsOccupied());
+        locker.setLockerName(dto.getLockerName());
+        locker.setLockerLocation(mapLockerLocation(dto.getLockerLocation()));
+        return OuSmartLockerResp.builder()
+                .status(HttpStatus.NO_CONTENT)
+                .message("Success")
+                .data(lockerRepository.save(locker))
                 .build();
     }
 
-    private HistoryUserDto mapHistoryUserToDto(HistoryUser historyUser) {
-        return HistoryUserDto.builder()
-                .user(historyUser.getUser())
-                .role(historyUser.getRole())
-                .build();
-    }
-
-    private HistoryLocationDto mapHistoryLocationToDto(HistoryLocation historyLocation) {
-        return HistoryLocationDto.builder()
-                .location(historyLocation.getLocation())
-                .role(historyLocation.getRole())
+    private LockerLocation mapLockerLocation(LockerLocationDto lockerLocation) {
+        return LockerLocation.builder()
+                .locationId(lockerLocation.getLocationId())
+                .location(lockerLocation.getLocation())
                 .build();
     }
 
@@ -623,5 +615,15 @@ public class LockerServiceImpl implements LockerService {
         selectedLocker.setIsOccupied(true);
         lockerRepository.save(selectedLocker);
         return selectedLocker;
+    }
+
+    private LockerUsingRecord saveLockerUsingRecord(User user, Locker locker) {
+        LockerUsingRecord lockerUsingRecord = LockerUsingRecord.builder()
+                .user(user)
+                .locker(locker)
+                .date(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+        lockerUsingRecordRepository.save(lockerUsingRecord);
+        return lockerUsingRecord;
     }
 }
