@@ -41,4 +41,6 @@ public interface LockerService {
     OuSmartLockerResp verifyAndOpenLocker(OpenLockerRequestDto request);
 
     OuSmartLockerResp registerRetry(ReRegisterLockerDto reRegisterLockerDto);
+
+    OuSmartLockerResp getHistoryRecord(String startDate, String endDate);
 }

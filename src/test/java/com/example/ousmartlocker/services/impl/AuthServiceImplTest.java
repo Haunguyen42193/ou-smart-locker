@@ -8,6 +8,7 @@ import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
 import com.example.ousmartlocker.exception.UsernamePasswordInvalid;
 import com.example.ousmartlocker.model.User;
 import com.example.ousmartlocker.repository.UserRepository;
+import com.example.ousmartlocker.repository.LoginRecordRepository;
 import com.example.ousmartlocker.security.JwtTokenProvider;
 import com.example.ousmartlocker.util.ConvertDataUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,6 +41,9 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private LoginRecordRepository loginRecordRepository;
+
     @Test
     void authenticate() throws JsonProcessingException {
         User user = ConvertDataUtil.convertDataToObject(AuthServiceTestData.mockUserData, User.class);
@@ -52,6 +56,7 @@ class AuthServiceImplTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), loginDto.getPassword());
         Mockito.when(authenticationManager.authenticate(Mockito.any())).thenReturn(authentication);
         Mockito.when(tokenProvider.generateToken(authentication)).thenReturn(token);
+        Mockito.when(loginRecordRepository.save(Mockito.any())).thenReturn(null);
         OuSmartLockerResp resp = authService.authenticate(loginDto);
         Assertions.assertNotNull(resp);
         Assertions.assertEquals(HttpStatus.OK, resp.getStatus());

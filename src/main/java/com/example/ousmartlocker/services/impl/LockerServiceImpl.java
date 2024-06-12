@@ -547,6 +547,11 @@ public class LockerServiceImpl implements LockerService {
     }
 
     @Override
+    public OuSmartLockerResp getHistoryRecord(String startDate, String endDate) {
+        return null;
+    }
+
+    @Override
     public OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation) {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerLocationRepository.save(lockerLocation)).build();
     }

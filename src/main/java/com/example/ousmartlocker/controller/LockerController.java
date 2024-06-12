@@ -125,5 +125,11 @@ public class LockerController {
         OuSmartLockerResp response = lockerService.verifyAndOpenLocker(request);
         return new ResponseEntity<>(response, response.getStatus());
     }
+
+    @GetMapping("/history/record")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp getHistoryRecord(@RequestParam String startDate, @RequestParam String endDate) {
+        return lockerService.getHistoryRecord(startDate, endDate);
+    }
 }
 
