@@ -81,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
             }
             String token = tokenProvider.generateToken(authentication);
             AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ConvertData.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
-            LoginRecord loginRecord = LoginRecord.builder().username(user.getUsername()).loginTime(Timestamp.valueOf(LocalDateTime.now())).build();
+            LoginRecord loginRecord = LoginRecord.builder().user(user).loginTime(Timestamp.valueOf(LocalDateTime.now())).build();
             loginRecordRepository.save(loginRecord);
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Sucessfully logged in").data(responseModel).build();
         } catch (AuthenticationException ex) {

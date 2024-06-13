@@ -29,6 +29,12 @@ public class User implements UserDetails {
     private String phone;
     private List<Role> roles;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<LoginRecord> loginRecord;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<LockerUsingRecord> lockerUsingRecords;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.name())).toList();
