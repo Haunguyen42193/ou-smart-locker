@@ -14,6 +14,7 @@ public class ModelMapper {
 
     public static LockerDto mapToLockerDto(Locker locker) {
         return LockerDto.builder()
+                .lockerId(locker.getLockerId())
                 .isOccupied(locker.getIsOccupied())
                 .lockerLocation(mapToLockerLocationDto(locker.getLockerLocation()))
                 .lockerName(locker.getLockerName())
