@@ -48,10 +48,13 @@ public class SecurityConfig {
                         .authenticated()
                         .requestMatchers(HttpMethod.DELETE)
                         .authenticated()
+                        .requestMatchers("api/history/**", "api/location/**")
+                        .authenticated()
                         .requestMatchers(HttpMethod.POST,
                                 "api/locker/**",
                                 "api/schedule/**",
-                                "api/user/**")
+                                "api/user/**",
+                                "api/history/**")
                         // "api//add")
                         .authenticated())
                 //.requestMatchers(HttpMethod.POST, "/api/reservation/add")
