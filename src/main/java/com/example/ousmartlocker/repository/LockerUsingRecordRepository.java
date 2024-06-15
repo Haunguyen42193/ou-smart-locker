@@ -15,9 +15,9 @@ public interface LockerUsingRecordRepository extends JpaRepository<LockerUsingRe
     @Query("SELECT COUNT(lr) FROM LockerUsingRecord lr WHERE lr.date >= ?1 AND lr.date <= ?2")
     long countRecordsBetween(Date dateTimeStart, Date dateTimeEnd);
 
-    @Query("SELECT new com.example.ousmartlocker.dto.LockerUsingDto(lr.locker, COUNT(lr)) FROM LockerUsingRecord lr WHERE lr.date >= ?1 AND lr.date <= ?2 GROUP BY lr.locker")
+    @Query("SELECT new com.example.ousmartlocker.dto.LockerUsingDto(lr.locker.lockerName, COUNT(lr)) FROM LockerUsingRecord lr WHERE lr.date >= ?1 AND lr.date <= ?2 GROUP BY lr.locker")
     List<LockerUsingDto> countRecordGroupByLocker(Date dateTimeStart, Date dateTimeEnd);
 
-    @Query("SELECT new com.example.ousmartlocker.dto.UserUsingDto(lr.user, COUNT(lr)) FROM LockerUsingRecord lr WHERE lr.date >= ?1 AND lr.date <= ?2 GROUP BY lr.user")
+    @Query("SELECT new com.example.ousmartlocker.dto.UserUsingDto(lr.user.name, COUNT(lr)) FROM LockerUsingRecord lr WHERE lr.date >= ?1 AND lr.date <= ?2 GROUP BY lr.user")
     List<UserUsingDto> countRecordGroupByUser(Date dateTimeStart, Date dateTimeEnd);
 }

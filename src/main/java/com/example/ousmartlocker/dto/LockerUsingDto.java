@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class LockerUsingDto {
-    private Locker locker;
+    private String lockerName;
     private long record;
 }
