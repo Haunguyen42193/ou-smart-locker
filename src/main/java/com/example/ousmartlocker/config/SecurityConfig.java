@@ -44,6 +44,10 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("api/locker/open-locker")
                         .permitAll()
+                        .requestMatchers(HttpMethod.PUT)
+                        .authenticated()
+                        .requestMatchers(HttpMethod.DELETE)
+                        .authenticated()
                         .requestMatchers(HttpMethod.POST,
                                 "api/locker/**",
                                 "api/schedule/**",

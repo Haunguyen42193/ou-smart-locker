@@ -10,6 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class HistoryLocationDto {
-    private LockerLocation location;
+    private LockerLocationDto location;
     private HistoryLocationRole role;
 }
