@@ -66,7 +66,9 @@ public class LockerServiceImpl implements LockerService {
 
     @Override
     public OuSmartLockerResp getAllLocker() {
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerRepository.findAll()).build();
+        List<Locker> lockers = lockerRepository.findAll();
+        List<LockerDto> lockerDtos = lockers.stream().map(ModelMapper::mapToLockerDto).toList();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all locker successful").data(lockerDtos).build();
     }
 
     @Override
@@ -549,7 +551,7 @@ public class LockerServiceImpl implements LockerService {
         locker.setLockerName(dto.getLockerName());
         locker.setLockerLocation(ModelMapper.mapLockerLocation(dto.getLockerLocation()));
         return OuSmartLockerResp.builder()
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .message("Success")
                 .data(lockerRepository.save(locker))
                 .build();

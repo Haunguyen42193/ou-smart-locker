@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class UserUsingDto {
-    private User user;
+    private String name;
     private long record;
 }
