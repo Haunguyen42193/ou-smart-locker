@@ -10,6 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class HistoryUserDto {
-    private User user;
+    private UserDto user;
     private HistoryUserRole role;
 }

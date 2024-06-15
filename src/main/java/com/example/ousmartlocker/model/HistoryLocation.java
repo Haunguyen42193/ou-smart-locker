@@ -17,11 +17,9 @@ public class HistoryLocation {
     private Long historyLocationId;
     @ManyToOne
     @JoinColumn(name = "history_id")
-    @JsonBackReference
     private History history;
     @ManyToOne
     @JoinColumn(name = "location_id")
-    @JsonBackReference
     private LockerLocation location;
     @Enumerated(EnumType.STRING)
     private HistoryLocationRole role;

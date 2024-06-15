@@ -3,9 +3,7 @@ package com.example.ousmartlocker.services.impl;
 import com.example.ousmartlocker.dto.*;
 import com.example.ousmartlocker.exception.HistoryNotFoundException;
 import com.example.ousmartlocker.exception.InvalidTimeException;
-import com.example.ousmartlocker.model.History;
-import com.example.ousmartlocker.model.HistoryLocation;
-import com.example.ousmartlocker.model.HistoryUser;
+import com.example.ousmartlocker.model.*;
 import com.example.ousmartlocker.repository.HistoryRepository;
 import com.example.ousmartlocker.repository.LockerUsingRecordRepository;
 import com.example.ousmartlocker.services.HistoryService;
@@ -87,15 +85,31 @@ public class HistoryServiceImpl implements HistoryService {
 
     private HistoryUserDto mapHistoryUserToDto(HistoryUser historyUser) {
         return HistoryUserDto.builder()
-                .user(historyUser.getUser())
+                .user(mapToUserDto(historyUser.getUser()))
                 .role(historyUser.getRole())
+                .build();
+    }
+
+    private UserDto mapToUserDto(User user) {
+        return UserDto.builder()
+                .id(user.getUserId())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .roles(user.getRoles())
+                .username(user.getUsername())
+                .name(user.getName())
                 .build();
     }
 
     private HistoryLocationDto mapHistoryLocationToDto(HistoryLocation historyLocation) {
         return HistoryLocationDto.builder()
-                .location(historyLocation.getLocation())
+                .location(mapToLocationDto(historyLocation.getLocation()))
                 .role(historyLocation.getRole())
                 .build();
+    }
+
+    private LockerLocationDto mapToLocationDto(LockerLocation location) {
+        return LockerLocationDto.builder().locationId(location.getLocationId())
+                .location(location.getLocation()).build();
     }
 }

@@ -18,12 +18,10 @@ public class HistoryUser {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "history_id")
-    @JsonBackReference
     private History history;
 
     @Enumerated(EnumType.STRING)
