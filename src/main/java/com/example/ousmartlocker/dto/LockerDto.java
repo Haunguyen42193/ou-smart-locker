@@ -10,6 +10,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class LockerDto implements Serializable {
+    private Long lockerId;
     private String lockerName;
     private Boolean isOccupied;
     private LockerLocationDto lockerLocation;
