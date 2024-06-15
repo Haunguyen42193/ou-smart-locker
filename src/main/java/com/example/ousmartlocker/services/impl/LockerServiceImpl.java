@@ -1,6 +1,7 @@
 package com.example.ousmartlocker.services.impl;
 
 import com.example.ousmartlocker.dto.*;
+import com.example.ousmartlocker.dto.mapper.ModelMapper;
 import com.example.ousmartlocker.exception.*;
 import com.example.ousmartlocker.model.*;
 import com.example.ousmartlocker.model.enums.HistoryLocationRole;
@@ -291,8 +292,8 @@ public class LockerServiceImpl implements LockerService {
         String endTime = SmartLockerUtils.formatter.format(currentTime.plusHours(1));
         String startTime = SmartLockerUtils.formatter.format(currentTime);
 
-        List<HistoryUser> historyUsers = mapHistoryUsersNew(history.getUsers());
-        List<HistoryLocation> historyLocationsNew = mapHistoryLocationsNew(historyLocations);
+        List<HistoryUser> historyUsers = ModelMapper.mapHistoryUsersNew(history.getUsers());
+        List<HistoryLocation> historyLocationsNew = ModelMapper.mapHistoryLocationsNew(historyLocations);
         History historySend = History.builder()
                 .locker(selectedLocker)
                 .otp(otp)
@@ -323,30 +324,6 @@ public class LockerServiceImpl implements LockerService {
 
         senderService.sendRegisterLockerMail(senderDetailDto);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data("Shipper get information of this order").build();
-    }
-
-    private List<HistoryUser> mapHistoryUsersNew(List<HistoryUser> users) {
-        return users.stream().map(this::mapHistoryUserNew).toList();
-    }
-
-    private HistoryUser mapHistoryUserNew(HistoryUser historyUser) {
-        return HistoryUser.builder()
-                .history(historyUser.getHistory())
-                .user(historyUser.getUser())
-                .role(historyUser.getRole())
-                .build();
-    }
-
-    private List<HistoryLocation> mapHistoryLocationsNew(List<HistoryLocation> location) {
-        return location.stream().map(this::mapHistoryLocationNew).toList();
-    }
-
-    private HistoryLocation mapHistoryLocationNew(HistoryLocation historyLocation) {
-        return HistoryLocation.builder()
-                .history(historyLocation.getHistory())
-                .location(historyLocation.getLocation())
-                .role(historyLocation.getRole())
-                .build();
     }
 
     @Override
@@ -570,18 +547,11 @@ public class LockerServiceImpl implements LockerService {
                 .orElseThrow(() -> new LockerNotFoundException("Locker not found"));
         locker.setIsOccupied(dto.getIsOccupied());
         locker.setLockerName(dto.getLockerName());
-        locker.setLockerLocation(mapLockerLocation(dto.getLockerLocation()));
+        locker.setLockerLocation(ModelMapper.mapLockerLocation(dto.getLockerLocation()));
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.NO_CONTENT)
                 .message("Success")
                 .data(lockerRepository.save(locker))
-                .build();
-    }
-
-    private LockerLocation mapLockerLocation(LockerLocationDto lockerLocation) {
-        return LockerLocation.builder()
-                .locationId(lockerLocation.getLocationId())
-                .location(lockerLocation.getLocation())
                 .build();
     }
 

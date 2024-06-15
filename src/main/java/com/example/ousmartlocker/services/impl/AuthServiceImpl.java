@@ -1,10 +1,7 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.dto.LoginDto;
-import com.example.ousmartlocker.dto.ConvertData;
-import com.example.ousmartlocker.dto.SignUpDto;
-import com.example.ousmartlocker.dto.AuthResponseDto;
-import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.dto.*;
+import com.example.ousmartlocker.dto.mapper.ModelMapper;
 import com.example.ousmartlocker.exception.UsernamePasswordInvalid;
 import com.example.ousmartlocker.exception.OuSmartLockerBadRequestApiException;
 import com.example.ousmartlocker.exception.RequestDataIsNullException;
@@ -13,7 +10,6 @@ import com.example.ousmartlocker.exception.PasswordInvalidException;
 import com.example.ousmartlocker.exception.EmailInvalidException;
 import com.example.ousmartlocker.model.LoginRecord;
 import com.example.ousmartlocker.model.User;
-import com.example.ousmartlocker.model.enums.Role;
 import com.example.ousmartlocker.repository.LoginRecordRepository;
 import com.example.ousmartlocker.repository.UserRepository;
 import com.example.ousmartlocker.security.JwtTokenProvider;
@@ -33,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Objects;
 
 @Service
@@ -80,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new OuSmartLockerBadRequestApiException("User not found");
             }
             String token = tokenProvider.generateToken(authentication);
-            AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ConvertData.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
+            AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ModelMapper.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
             LoginRecord loginRecord = LoginRecord.builder().user(user).loginTime(Timestamp.valueOf(LocalDateTime.now())).build();
             loginRecordRepository.save(loginRecord);
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Sucessfully logged in").data(responseModel).build();
@@ -102,24 +97,13 @@ public class AuthServiceImpl implements AuthService {
             throw new PasswordInvalidException("Sign up fail. Password invalid");
         if (!SmartLockerUtils.validateEmail(signUpDto.getEmail()))
             throw new EmailInvalidException("Sign up fail. Email invalid");
-        User user = convertSignUpDtoToUser(signUpDto);
+        User user = ModelMapper.mapSignUpDtoToUser(signUpDto, passwordEncoder);
         userRepository.save(user);
         String token = tokenProvider.generateToken(new UsernamePasswordAuthenticationToken(
                 user.getUsername(),
                 signUpDto.getPassword()
         ));
-        AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ConvertData.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
+        AuthResponseDto responseModel = AuthResponseDto.builder().accessToken(token).user(ModelMapper.convertUserToUserDto(user)).loginTime(System.currentTimeMillis()).expirationDuration(expiration).build();
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Sign up successful").data(responseModel).build();
-    }
-
-    private User convertSignUpDtoToUser(SignUpDto signUpDto) {
-        return User.builder()
-                .name(signUpDto.getName())
-                .email(signUpDto.getEmail())
-                .username(signUpDto.getUsername())
-                .password(passwordEncoder.encode(signUpDto.getPassword().trim()))
-                .phone(SmartLockerUtils.formatPhoneNumber(signUpDto.getPhone()))
-                .roles(Collections.singletonList(Role.ROLE_USER))
-                .build();
     }
 }

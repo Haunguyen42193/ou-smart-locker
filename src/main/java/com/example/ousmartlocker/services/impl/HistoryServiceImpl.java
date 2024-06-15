@@ -1,6 +1,7 @@
 package com.example.ousmartlocker.services.impl;
 
 import com.example.ousmartlocker.dto.*;
+import com.example.ousmartlocker.dto.mapper.ModelMapper;
 import com.example.ousmartlocker.exception.HistoryNotFoundException;
 import com.example.ousmartlocker.exception.InvalidTimeException;
 import com.example.ousmartlocker.model.*;
@@ -57,7 +58,7 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public OuSmartLockerResp getAllHistory() {
         List<History> histories = historyRepository.findAll();
-        List<HistoryDto> historyDtos = histories.stream().map(this::mapHistoryToDto).toList();
+        List<HistoryDto> historyDtos = histories.stream().map(ModelMapper::mapHistoryToDto).toList();
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDtos).build();
     }
 
@@ -66,50 +67,7 @@ public class HistoryServiceImpl implements HistoryService {
         History history = historyRepository.findById(historyId).orElse(null);
         if (Objects.isNull(history))
             throw new HistoryNotFoundException("Not found history");
-        HistoryDto historyDto = mapHistoryToDto(history);
+        HistoryDto historyDto = ModelMapper.mapHistoryToDto(history);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
-    }
-
-    private HistoryDto mapHistoryToDto(History history) {
-        return HistoryDto.builder()
-                .historyId(history.getHistoryId())
-                .locker(history.getLocker())
-                .endTime(history.getEndTime())
-                .startTime(history.getStartTime())
-                .location(history.getLocation().stream().map(this::mapHistoryLocationToDto).toList())
-                .users(history.getUsers().stream().map(this::mapHistoryUserToDto).toList())
-                .otp(history.getOtp())
-                .onProcedure(history.getOnProcedure())
-                .build();
-    }
-
-    private HistoryUserDto mapHistoryUserToDto(HistoryUser historyUser) {
-        return HistoryUserDto.builder()
-                .user(mapToUserDto(historyUser.getUser()))
-                .role(historyUser.getRole())
-                .build();
-    }
-
-    private UserDto mapToUserDto(User user) {
-        return UserDto.builder()
-                .id(user.getUserId())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .roles(user.getRoles())
-                .username(user.getUsername())
-                .name(user.getName())
-                .build();
-    }
-
-    private HistoryLocationDto mapHistoryLocationToDto(HistoryLocation historyLocation) {
-        return HistoryLocationDto.builder()
-                .location(mapToLocationDto(historyLocation.getLocation()))
-                .role(historyLocation.getRole())
-                .build();
-    }
-
-    private LockerLocationDto mapToLocationDto(LockerLocation location) {
-        return LockerLocationDto.builder().locationId(location.getLocationId())
-                .location(location.getLocation()).build();
     }
 }

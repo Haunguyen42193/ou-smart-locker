@@ -2,7 +2,6 @@ package com.example.ousmartlocker.services.impl;
 
 import com.example.ousmartlocker.dto.OuSmartLockerResp;
 import com.example.ousmartlocker.dto.UserDto;
-import com.example.ousmartlocker.dto.ConvertData;
 import com.example.ousmartlocker.dto.ChangePassDto;
 import com.example.ousmartlocker.dto.ForgotPasswordRequest;
 import com.example.ousmartlocker.dto.SenderDetailDto;
@@ -11,6 +10,7 @@ import com.example.ousmartlocker.dto.SenderPasswordDto;
 import com.example.ousmartlocker.dto.UpdateUserInfoDto;
 import com.example.ousmartlocker.dto.LoginRecordDto;
 import com.example.ousmartlocker.dto.LoginRecordUserDto;
+import com.example.ousmartlocker.dto.mapper.ModelMapper;
 import com.example.ousmartlocker.exception.UserNotFoundException;
 import com.example.ousmartlocker.exception.RoleAlreadyExistsException;
 import com.example.ousmartlocker.exception.TokenInvalidException;
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public OuSmartLockerResp getAllUser() {
-        List<UserDto> userDto = userRepository.findAll().stream().map(ConvertData::convertUserToUserDto).toList();
+        List<UserDto> userDto = userRepository.findAll().stream().map(ModelMapper::convertUserToUserDto).toList();
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all user").data(userDto).build();
     }
 
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
         }
         user.getRoles().add(roles);
         userRepository.save(user);
-        UserDto userDto = ConvertData.convertUserToUserDto(user);
+        UserDto userDto = ModelMapper.convertUserToUserDto(user);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all user").data(userDto).build();
     }
 

@@ -14,10 +14,10 @@ import java.util.List;
 public class HistoryDto {
     private Long historyId;
     private List<HistoryUserDto> users;
-    private Locker locker;
+    private LockerDto locker;
     private String startTime;
     private String endTime;
     private List<HistoryLocationDto> location;
-    private Otp otp;
+    private OtpDto otp;
     private Long onProcedure;
 }
