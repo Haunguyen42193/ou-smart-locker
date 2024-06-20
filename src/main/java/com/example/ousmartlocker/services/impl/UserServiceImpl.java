@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(roles);
         userRepository.save(user);
         UserDto userDto = ModelMapper.convertUserToUserDto(user);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all user").data(userDto).build();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add role success").data(userDto).build();
     }
 
     @Override
@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
         user.getRoles().remove(roles);
         userRepository.save(user);
         UserDto userDto = ModelMapper.convertUserToUserDto(user);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all user").data(userDto).build();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Remove role success").data(userDto).build();
     }
 
     private PassResetOtp generateResetPassOtp(User user) {
