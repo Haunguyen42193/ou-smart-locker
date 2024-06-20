@@ -81,28 +81,11 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(user)) {
             throw new UserNotFoundException("User not found");
         }
-        Role roles;
-        switch (role) {
-            case 1:
-                roles = Role.ROLE_ADMIN;
-                if (user.getRoles().contains(Role.ROLE_ADMIN))
-                    throw new RoleAlreadyExistsException("Add role fail. This user had role admin");
-                break;
-            case 3:
-                roles = Role.ROLE_SHIPPER;
-                if (user.getRoles().contains(Role.ROLE_SHIPPER))
-                    throw new RoleAlreadyExistsException("Add role fail. This user had role shipper");
-                break;
-            default:
-                roles = Role.ROLE_USER;
-                if (user.getRoles().contains(Role.ROLE_USER))
-                    throw new RoleAlreadyExistsException("Add role fail. This user had role user");
-                break;
-        }
+        Role roles = checkRole(role, user);
         user.getRoles().add(roles);
         userRepository.save(user);
         UserDto userDto = ModelMapper.convertUserToUserDto(user);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Get all user").data(userDto).build();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add role success").data(userDto).build();
     }
 
     @Override
@@ -216,6 +199,19 @@ public class UserServiceImpl implements UserService {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).data(loginRecordDto).message("Get success").build();
     }
 
+    @Override
+    public OuSmartLockerResp removeRole(Long id, int role) {
+        User user = userRepository.findById(id).orElse(null);
+        if (Objects.isNull(user)) {
+            throw new UserNotFoundException("User not found");
+        }
+        Role roles = checkRole(role, user);
+        user.getRoles().remove(roles);
+        userRepository.save(user);
+        UserDto userDto = ModelMapper.convertUserToUserDto(user);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Remove role success").data(userDto).build();
+    }
+
     private PassResetOtp generateResetPassOtp(User user) {
         SecureRandom random = new SecureRandom();
         int randValue = 100000 + random.nextInt(900000);
@@ -231,5 +227,27 @@ public class UserServiceImpl implements UserService {
                 .build();
         passResetOtpRepository.save(passResetOtp);
         return passResetOtp;
+    }
+
+    private Role checkRole(int role, User user) {
+        Role roles;
+        switch (role) {
+            case 1:
+                roles = Role.ROLE_ADMIN;
+                if (user.getRoles().contains(Role.ROLE_ADMIN))
+                    throw new RoleAlreadyExistsException("Add role fail. This user had role admin");
+                break;
+            case 3:
+                roles = Role.ROLE_SHIPPER;
+                if (user.getRoles().contains(Role.ROLE_SHIPPER))
+                    throw new RoleAlreadyExistsException("Add role fail. This user had role shipper");
+                break;
+            default:
+                roles = Role.ROLE_USER;
+                if (user.getRoles().contains(Role.ROLE_USER))
+                    throw new RoleAlreadyExistsException("Add role fail. This user had role user");
+                break;
+        }
+        return roles;
     }
 }
