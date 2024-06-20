@@ -33,4 +33,6 @@ public interface LockerService {
     OuSmartLockerResp deleteLocker(long id);
 
     OuSmartLockerResp updateLocker(long id, LockerDto dto);
+
+    OuSmartLockerResp countLocker();
 }

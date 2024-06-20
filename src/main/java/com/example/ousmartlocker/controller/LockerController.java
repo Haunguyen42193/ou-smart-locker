@@ -111,5 +111,11 @@ public class LockerController {
     public OuSmartLockerResp updateLocker(@PathVariable("id") long id, @RequestBody LockerDto dto) {
         return lockerService.updateLocker(id, dto);
     }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp countLocker() {
+        return lockerService.countLocker();
+    }
 }
 

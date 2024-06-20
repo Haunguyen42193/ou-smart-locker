@@ -8,4 +8,6 @@ public interface HistoryService {
     OuSmartLockerResp getAllHistory();
 
     OuSmartLockerResp getHistoryById(Long historyId);
+
+    OuSmartLockerResp countHistory();
 }

@@ -12,4 +12,6 @@ public interface LocationService {
     OuSmartLockerResp deleteLocation(long id);
 
     OuSmartLockerResp updateLocation(long id, LockerLocationDto dto);
+
+    OuSmartLockerResp countLocation();
 }

@@ -26,4 +26,10 @@ public class HistoryController {
     public OuSmartLockerResp getHistoryById(@PathVariable Long historyId) {
         return historyService.getHistoryById(historyId);
     }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp countHistory() {
+        return historyService.countHistory();
+    }
 }

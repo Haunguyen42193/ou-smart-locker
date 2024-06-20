@@ -70,4 +70,10 @@ public class UserController {
     public OuSmartLockerResp getRecordLogin(@RequestParam String startDate, @RequestParam String endDate) {
         return userService.getRecordLogin(startDate, endDate);
     }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp countUser(){
+        return userService.countUser();
+    }
 }

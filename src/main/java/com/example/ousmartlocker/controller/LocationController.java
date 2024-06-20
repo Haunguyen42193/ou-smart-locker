@@ -38,4 +38,10 @@ public class LocationController {
     public OuSmartLockerResp updateLocation(@PathVariable("id") long id, @RequestBody LockerLocationDto dto) {
         return locationService.updateLocation(id, dto);
     }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp countLocation() {
+        return locationService.countLocation();
+    }
 }

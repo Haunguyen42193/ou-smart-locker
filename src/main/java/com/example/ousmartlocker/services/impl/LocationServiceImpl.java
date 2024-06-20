@@ -55,4 +55,10 @@ public class LocationServiceImpl implements LocationService {
                 .data(lockerLocationRepository.save(locker))
                 .build();
     }
+
+    @Override
+    public OuSmartLockerResp countLocation() {
+        long num = lockerLocationRepository.count();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Count user success").data(num).build();
+    }
 }
