@@ -229,6 +229,12 @@ public class UserServiceImpl implements UserService {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Remove role success").data(userDto).build();
     }
 
+    @Override
+    public OuSmartLockerResp countUser() {
+        long num = userRepository.count();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Count user success").data(num).build();
+    }
+
     private PassResetOtp generateResetPassOtp(User user) {
         SecureRandom random = new SecureRandom();
         int randValue = 100000 + random.nextInt(900000);

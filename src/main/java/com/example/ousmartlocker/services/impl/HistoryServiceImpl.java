@@ -70,4 +70,10 @@ public class HistoryServiceImpl implements HistoryService {
         HistoryDto historyDto = ModelMapper.mapHistoryToDto(history);
         return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Successful").data(historyDto).build();
     }
+
+    @Override
+    public OuSmartLockerResp countHistory() {
+        long num = historyRepository.count();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Count user success").data(num).build();
+    }
 }

@@ -18,4 +18,6 @@ public interface UserService {
     OuSmartLockerResp getRecordLogin(String startDate, String endDate);
 
     OuSmartLockerResp removeRole(Long id, int role);
+
+    OuSmartLockerResp countUser();
 }

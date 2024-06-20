@@ -557,6 +557,12 @@ public class LockerServiceImpl implements LockerService {
                 .build();
     }
 
+    @Override
+    public OuSmartLockerResp countLocker() {
+        long num = lockerRepository.count();
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Count locker success").data(num).build();
+    }
+
     private Otp generateOTP(Locker locker) {
         SecureRandom random = new SecureRandom();
         int otpValue = 1000 + random.nextInt(9000);
