@@ -48,7 +48,13 @@ public class UserController {
         return userService.confirm(requestDto);
     }
 
-    @PostMapping("/user-info/update")
+    @PostMapping("/admin/role/remove/{id}/{role}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public OuSmartLockerResp removeRole(@PathVariable Long id, @PathVariable int role) {
+        return userService.removeRole(id, role);
+    }
+
+    @PostMapping("/user-info/role")
     public OuSmartLockerResp updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
         return userService.updateUserInfo(updateUserInfoDto);
     }
