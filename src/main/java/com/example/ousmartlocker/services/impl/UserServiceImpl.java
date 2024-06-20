@@ -205,7 +205,24 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(user)) {
             throw new UserNotFoundException("User not found");
         }
-        Role roles = checkRole(role, user);
+        Role roles;
+        switch (role) {
+            case 1:
+                roles = Role.ROLE_ADMIN;
+                if (!user.getRoles().contains(Role.ROLE_ADMIN))
+                    throw new RoleAlreadyExistsException("Remove role fail. This user doesn't have role admin");
+                break;
+            case 3:
+                roles = Role.ROLE_SHIPPER;
+                if (!user.getRoles().contains(Role.ROLE_SHIPPER))
+                    throw new RoleAlreadyExistsException("Remove role fail. This user doesn't have role shipper");
+                break;
+            default:
+                roles = Role.ROLE_USER;
+                if (!user.getRoles().contains(Role.ROLE_USER))
+                    throw new RoleAlreadyExistsException("Remove role fail. This user doesn't have role user");
+                break;
+        }
         user.getRoles().remove(roles);
         userRepository.save(user);
         UserDto userDto = ModelMapper.convertUserToUserDto(user);
