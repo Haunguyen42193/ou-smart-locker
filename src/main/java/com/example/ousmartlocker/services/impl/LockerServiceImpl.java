@@ -61,7 +61,9 @@ public class LockerServiceImpl implements LockerService {
     @Override
     public OuSmartLockerResp addLocker(Locker locker) {
         locker.setIsOccupied(false);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerRepository.save(locker)).build();
+        lockerRepository.save(locker);
+        LockerDto lockerDto = ModelMapper.mapToLockerDto(locker);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(lockerDto).build();
     }
 
     @Override
@@ -486,7 +488,7 @@ public class LockerServiceImpl implements LockerService {
         LockerOtp lockerOtp = lockerOtpOptional.get();
         Otp otp = lockerOtp.getOtp();
         otp.setExpireTime(SmartLockerUtils.formatter.format(LocalDateTime.now()));
-        otpRepository.saveAndFlush(otp);
+        otpRepository.save(otp);
         if (!otp.getOtpNumber().equals(request.getOtp())) {
             return OuSmartLockerResp.builder()
                     .status(HttpStatus.BAD_REQUEST)
@@ -497,11 +499,11 @@ public class LockerServiceImpl implements LockerService {
         Locker locker = lockerOtp.getLocker();
         locker.setIsOccupied(false);
         lockerRepository.save(locker);
-
+        LockerDto lockerDto = ModelMapper.mapToLockerDto(locker);
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.OK)
                 .message("Locker opened successfully")
-                .data(locker)
+                .data(lockerDto)
                 .build();
     }
 
@@ -532,7 +534,8 @@ public class LockerServiceImpl implements LockerService {
                 .subject("New order").build();
         senderService.sendEmail(emailInfoDto);
         smsService.sendSms(user.getPhone(), msgBody);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(otpNew).build();
+        OtpDto otpDto = ModelMapper.mapToOtpDto(otpNew);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add locker successful").data(otpDto).build();
     }
 
     @Override
@@ -540,7 +543,7 @@ public class LockerServiceImpl implements LockerService {
         Locker locker = lockerRepository.findById(id)
                 .orElseThrow(() -> new LockerNotFoundException("Locker not found"));
         lockerRepository.delete(locker);
-        return OuSmartLockerResp.builder().status(HttpStatus.NO_CONTENT).message("Success").data(null).build();
+        return OuSmartLockerResp.builder().status(HttpStatus.NO_CONTENT).message("Success").build();
     }
 
     @Override
@@ -550,10 +553,12 @@ public class LockerServiceImpl implements LockerService {
         locker.setIsOccupied(dto.getIsOccupied());
         locker.setLockerName(dto.getLockerName());
         locker.setLockerLocation(ModelMapper.mapLockerLocation(dto.getLockerLocation()));
+        lockerRepository.save(locker);
+        LockerDto lockerDto = ModelMapper.mapToLockerDto(locker);
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.OK)
                 .message("Success")
-                .data(lockerRepository.save(locker))
+                .data(lockerDto)
                 .build();
     }
 

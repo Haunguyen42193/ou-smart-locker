@@ -48,14 +48,9 @@ public class ModelMapper {
                 .build();
     }
 
-    public static LockerLocationDto mapToLocationDto(LockerLocation location) {
-        return LockerLocationDto.builder().locationId(location.getLocationId())
-                .location(location.getLocation()).build();
-    }
-
     public static HistoryLocationDto mapHistoryLocationToDto(HistoryLocation historyLocation) {
         return HistoryLocationDto.builder()
-                .location(mapToLocationDto(historyLocation.getLocation()))
+                .location(mapToLockerLocationDto(historyLocation.getLocation()))
                 .role(historyLocation.getRole())
                 .build();
     }
