@@ -1,10 +1,9 @@
 package com.example.ousmartlocker.services.impl;
 
-import com.example.ousmartlocker.dto.LockerDto;
 import com.example.ousmartlocker.dto.LockerLocationDto;
 import com.example.ousmartlocker.dto.OuSmartLockerResp;
+import com.example.ousmartlocker.dto.mapper.ModelMapper;
 import com.example.ousmartlocker.exception.LockerLocationNotFoundException;
-import com.example.ousmartlocker.exception.LockerNotFoundException;
 import com.example.ousmartlocker.model.Locker;
 import com.example.ousmartlocker.model.LockerLocation;
 import com.example.ousmartlocker.repository.LockerLocationRepository;
@@ -30,7 +29,9 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public OuSmartLockerResp addLockerLocation(LockerLocation lockerLocation) {
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add location successful").data(lockerLocationRepository.save(lockerLocation)).build();
+        LockerLocation location = lockerLocationRepository.save(lockerLocation);
+        LockerLocationDto lockerLocationDto = ModelMapper.mapToLockerLocationDto(location);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Add location successful").data(lockerLocationDto).build();
     }
 
     @Override
@@ -49,10 +50,12 @@ public class LocationServiceImpl implements LocationService {
                 .orElseThrow(() -> new LockerLocationNotFoundException("Location not found"));
         locker.setLocationId(dto.getLocationId());
         locker.setLocation(dto.getLocation());
+        lockerLocationRepository.save(locker);
+        LockerLocationDto lockerLocationDto = ModelMapper.mapToLockerLocationDto(locker);
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.NO_CONTENT)
                 .message("Success")
-                .data(lockerLocationRepository.save(locker))
+                .data(lockerLocationDto)
                 .build();
     }
 

@@ -172,7 +172,8 @@ public class UserServiceImpl implements UserService {
             user.setEmail(updateUserInfoDto.getMail());
         }
         userRepository.saveAndFlush(user);
-        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Update user info successfully!").data(user).build();
+        UserDto userDto = ModelMapper.mapToUserDto(user);
+        return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Update user info successfully!").data(userDto).build();
     }
 
     @Override
