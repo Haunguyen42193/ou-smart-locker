@@ -95,6 +95,10 @@ public class LockerServiceImpl implements LockerService {
         if (availableLockers.isEmpty()) {
             return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Register locker fail").data("Không còn locker trống hoặc đăng ký không thành công").build();
         } else {
+            List<Locker> availableLockersReceive = lockerRepository.findByIsOccupiedFalseAndLockerLocation(registerLockerDto.getLocationReceive());
+            if (availableLockersReceive.isEmpty()) {
+                return OuSmartLockerResp.builder().status(HttpStatus.OK).message("Register locker fail").data("Không còn locker trống hoặc đăng ký không thành công").build();
+            }
             SmartLockerUtils.validatePhoneNumber(user.getPhone());
             Locker selectedLocker = randomLocker(availableLockers);
 
@@ -497,8 +501,6 @@ public class LockerServiceImpl implements LockerService {
         }
 
         Locker locker = lockerOtp.getLocker();
-        locker.setIsOccupied(false);
-        lockerRepository.save(locker);
         LockerDto lockerDto = ModelMapper.mapToLockerDto(locker);
         return OuSmartLockerResp.builder()
                 .status(HttpStatus.OK)
