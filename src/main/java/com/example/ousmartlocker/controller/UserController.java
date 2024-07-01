@@ -60,6 +60,7 @@ public class UserController {
     }
 
     @GetMapping("/datetime")
+    @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp getLocalDateTime() {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).data(LocalDateTime.now().toString()).build();
     }
