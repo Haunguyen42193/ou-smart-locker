@@ -55,12 +55,12 @@ public class UserController {
     }
 
     @PostMapping("/user-info/role")
-    @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
         return userService.updateUserInfo(updateUserInfoDto);
     }
 
     @GetMapping("/datetime")
+    @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp getLocalDateTime() {
         return OuSmartLockerResp.builder().status(HttpStatus.OK).data(LocalDateTime.now().toString()).build();
     }
