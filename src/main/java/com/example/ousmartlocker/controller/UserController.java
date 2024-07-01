@@ -55,6 +55,7 @@ public class UserController {
     }
 
     @PostMapping("/user-info/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public OuSmartLockerResp updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
         return userService.updateUserInfo(updateUserInfoDto);
     }
