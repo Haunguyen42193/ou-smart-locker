@@ -12,6 +12,28 @@ import java.util.List;
 
 public class ModelMapper {
 
+    public static DocumentDto mapToDocumentDto(Document document) {
+        return DocumentDto.builder().title(document.getTitle())
+                .content(document.getContent())
+                .type(document.getType())
+                .securityLevel(document.getSecurityLevel())
+                .id(document.getId())
+                .department(mapToDepartmentDto(document.getDepartment()))
+                .build();
+    }
+
+    public static DepartmentDto mapToDepartmentDto(Department department) {
+        return DepartmentDto.builder().id(department.getId())
+                .name(department.getName())
+                .build();
+    }
+
+    public static FaceDto mapToFaceDto(Face face) {
+        return FaceDto.builder().id(face.getId())
+                .faceEncoding(face.getFaceEncoding())
+                .build();
+    }
+
     public static LockerDto mapToLockerDto(Locker locker) {
         return LockerDto.builder()
                 .lockerId(locker.getLockerId())
