@@ -35,6 +35,12 @@ public class User implements UserDetails {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<LockerUsingRecord> lockerUsingRecords;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    private Face face;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.name())).toList();
